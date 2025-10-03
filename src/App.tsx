@@ -1,7 +1,9 @@
+import Register from "./components/pages/auth/Register";
+
 const App = () => {
   return (
     <div>
-      <h1 className="text-2xl text-red-400">helo</h1>
+      <Register />
     </div>
   );
 };
