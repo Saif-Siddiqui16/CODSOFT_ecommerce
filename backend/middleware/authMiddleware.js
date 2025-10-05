@@ -1,5 +1,5 @@
 import jwt from "jsonwebtoken";
-export const authController = async (req, res, next) => {
+export const authMiddleware = async (req, res, next) => {
   const token = req.cookies?.token;
 
   if (!token) {
