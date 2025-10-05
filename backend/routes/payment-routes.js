@@ -8,3 +8,17 @@
 
 
 */
+
+import express from "express";
+import { authMiddleware } from "../middleware/authMiddleware.js";
+import {
+  checkoutSuccess,
+  createPayment,
+} from "../controllers/payment-controller.js";
+
+const router = express.Router();
+
+router.post("/create-checkout-session", authMiddleware, createPayment);
+router.post("/checkout-success", authMiddleware, checkoutSuccess);
+
+export default router;

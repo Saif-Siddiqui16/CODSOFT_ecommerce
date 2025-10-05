@@ -14,7 +14,6 @@ const paymentSchema = new mongoose.Schema(
     paymentMethod: String,
     paymentStatus: String,
     paymentId: String,
-    payerId: String,
     amountPaid: Number,
     paymentDate: Date,
   },
