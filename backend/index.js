@@ -6,12 +6,13 @@ import cookieParser from "cookie-parser";
 import adminProductsRouter from "./routes/admin-product-routes.js";
 import shopProductsRouter from "./routes/product-routes.js";
 import shopCartRouter from "./routes/cart-routes.js";
+import shopAddressRouter from "./routes/address-routes.js";
 /*
 import authRouter from "./routes/auth-route.js";
 import adminOrderRouter from "./routes/auth-route.js";
 import shopProductsRouter from "./routes/product-route.js";
 
-import shopAddressRouter from "./routes/address-route.js";
+
 import shopOrderRouter from "./routes/order-route.js";
 import shopSearchRouter from "./routes/search-route.js";
 */
@@ -26,13 +27,13 @@ app.use("/api/auth", authRouter);
 app.use("/api/admin/product", adminProductsRouter);
 app.use("/api/shop/products", shopProductsRouter);
 app.use("/api/shop/cart", shopCartRouter);
-
+app.use("/api/shop/address", shopAddressRouter);
 /*
 app.use("/api/admin/products", adminProductsRouter);
 app.use("/api/admin/orders", adminOrderRouter);
 
 app.use("/api/shop/products", shopProductsRouter);
-app.use("/api/shop/address", shopAddressRouter);
+
 app.use("/api/shop/order", shopOrderRouter);
 app.use("/api/shop/search", shopSearchRouter);
 */

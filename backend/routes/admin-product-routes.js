@@ -1,12 +1,3 @@
-/*
-| Route               | Method   | Description    |
-| ------------------- | -------- | -------------- |
-| `/api/products`     | `POST`   | Create product |
-| `/api/products/:id` | `PUT`    | Update product |
-| `/api/products/:id` | `DELETE` | Delete product |
-
-*/
-
 import express from "express";
 import {
   createProduct,

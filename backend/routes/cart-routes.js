@@ -1,15 +1,3 @@
-/*
-
-| Route               | Method   | Description           |
-| ------------------- | -------- | --------------------- |
-| `/api/cart`         | `GET`    | Get user cart         |
-| `/api/cart`         | `POST`   | Add item to cart      |
-| `/api/cart/:itemId` | `PUT`    | Update item quantity  |
-| `/api/cart/:itemId` | `DELETE` | Remove item from cart |
-
-createCart getCartDetails updateCart deleteCart
-
-*/
 import express from "express";
 import {
   createCart,
