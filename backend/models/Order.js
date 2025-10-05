@@ -36,7 +36,7 @@ const orderSchema = new mongoose.Schema(
     orderDate: { type: Date, default: Date.now },
     orderUpdateDate: { type: Date, default: Date.now },
 
-    payment: { type: mongoose.Schema.Types.ObjectId, ref: "Payment" },
+    paymentId: { type: mongoose.Schema.Types.ObjectId, ref: "Payment" },
   },
   {
     timestamps: true,

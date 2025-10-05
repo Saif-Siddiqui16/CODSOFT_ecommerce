@@ -1,10 +1,13 @@
-/*
+import express from "express";
+import { authMiddleware } from "../middleware/authMiddleware.js";
+import {
+  createOrder,
+  getOrderById,
+  getUserOrders,
+} from "../controllers/order-controller.js";
+const router = express.Router();
+router.post("/", authMiddleware, createOrder);
+router.get("/my-orders", authMiddleware, getUserOrders);
+router.get("/:orderId", authMiddleware, getOrderById);
 
-| Route                   | Method | Description                   |
-| ----------------------- | ------ | ----------------------------- |
-| `/api/orders`           | `POST` | Create order                  |
-| `/api/orders/my-orders` | `GET`  | Get orders for logged-in user |
-| `/api/orders/:id`       | `GET`  | Get a specific order          |
-
-
-*/
+export default router;
