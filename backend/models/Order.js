@@ -2,33 +2,41 @@ import mongoose from "mongoose";
 
 const orderSchema = new mongoose.Schema(
   {
-    userId: String,
-    cartId: String,
+    userId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
+    cartId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Cart",
+      required: true,
+    },
+
     cartItems: [
       {
-        productId: String,
+        productId: { type: mongoose.Schema.Types.ObjectId, ref: "Product" },
         title: String,
         image: String,
-        price: String,
+        price: Number,
         quantity: Number,
       },
     ],
+
     addressInfo: {
-      addressId: String,
+      addressId: { type: mongoose.Schema.Types.ObjectId, ref: "Address" },
       address: String,
       city: String,
       pincode: String,
       phone: String,
     },
-    orderStatus: String,
-    totalAmount: Number,
-    orderDate: Date,
-    orderUpdateDate: Date,
 
-    payment: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Payment",
-    },
+    orderStatus: { type: String, default: "Pending" },
+    totalAmount: { type: Number, required: true },
+    orderDate: { type: Date, default: Date.now },
+    orderUpdateDate: { type: Date, default: Date.now },
+
+    payment: { type: mongoose.Schema.Types.ObjectId, ref: "Payment" },
   },
   {
     timestamps: true,
