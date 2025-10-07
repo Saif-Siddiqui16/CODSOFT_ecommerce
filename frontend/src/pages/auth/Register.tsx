@@ -1,38 +1,96 @@
 import { Button } from "@/components/ui/button";
+import { useNavigate, Link } from "react-router-dom";
+import { useState, type ChangeEvent, type FormEvent } from "react";
+import { useAppDispatch } from "@/data/hook";
+import { registerUser } from "@/store/auth-slice";
 
-const registerData = [
-  { id: 1, name: "Username" },
-  { id: 2, name: "Email" },
-  { id: 3, name: "Password" },
+interface RegisterField {
+  id: number;
+  name: string;
+  type: string;
+  key: keyof RegisterFormData;
+}
+
+export interface RegisterFormData {
+  username: string;
+  email: string;
+  password: string;
+}
+
+const registerData: RegisterField[] = [
+  { id: 1, name: "Username", type: "text", key: "username" },
+  { id: 2, name: "Email", type: "email", key: "email" },
+  { id: 3, name: "Password", type: "password", key: "password" },
 ];
+
 const Register = () => {
+  const navigate = useNavigate();
+  const dispatch = useAppDispatch();
+  const [form, setForm] = useState<RegisterFormData>({
+    username: "",
+    email: "",
+    password: "",
+  });
+
+  const handleChange = (e: ChangeEvent<HTMLInputElement>): void => {
+    const { name, value } = e.target;
+    setForm((prevForm) => ({
+      ...prevForm,
+      [name]: value,
+    }));
+  };
+
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const data = await dispatch(registerUser(form));
+    if (data.payload.success) {
+      navigate("/login", { replace: true });
+    }
+  };
+
   return (
-    <div className="mx-auto min-h-screen flex justify-center items-center">
-      <div className="flex flex-col p-4 shadow-2xl border rounded-lg lg:w-[30%]">
-        <h1 className="shadow-2xl text-4xl uppercase flex items-center justify-center">
+    <div className="min-h-screen flex justify-center items-center bg-gray-50 px-4">
+      <div className="w-full max-w-md bg-white p-8 shadow-xl rounded-lg border border-gray-200">
+        <h1 className="text-3xl font-bold text-center text-gray-800 mb-6 uppercase">
           Register
         </h1>
-        <form action="">
-          <div className="flex flex-col gap-5 mt-5">
-            {registerData.map((registerForm) => (
-              <div className="flex justify-between gap-3" key={registerForm.id}>
-                <label className="font-bold">{registerForm.name}</label>
-                <input
-                  type="text"
-                  className="border border-gray-500 px-2 py-1"
-                />
-              </div>
-            ))}
-            <Button className="cursor-pointer">Register</Button>
-            <div>
-              <p>
-                <span className="text-sm">Already Registered:</span>
-                <span className="text-blue-600 uppercase font-semibold cursor-pointer mx-5">
-                  {" "}
-                  Login
-                </span>
-              </p>
+
+        <form onSubmit={handleSubmit} className="space-y-5">
+          {registerData.map((item) => (
+            <div key={item.id} className="flex flex-col">
+              <label
+                htmlFor={item.key}
+                className="mb-1 text-sm font-medium text-gray-700"
+              >
+                {item.name}
+              </label>
+              <input
+                id={item.key}
+                name={item.key}
+                type={item.type}
+                value={form[item.key]}
+                onChange={handleChange}
+                required
+                className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-400 transition"
+              />
             </div>
+          ))}
+
+          <Button
+            type="submit"
+            className="w-full bg-amber-500 hover:bg-amber-600 transition"
+          >
+            Register
+          </Button>
+
+          <div className="text-center text-sm text-gray-600">
+            Already registered?{" "}
+            <Link
+              to="/login"
+              className="text-blue-600 font-medium hover:underline"
+            >
+              Login here
+            </Link>
           </div>
         </form>
       </div>

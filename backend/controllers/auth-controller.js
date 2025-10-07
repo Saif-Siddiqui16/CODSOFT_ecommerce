@@ -4,9 +4,8 @@ import jwt from "jsonwebtoken";
 
 export const registerUser = async (req, res) => {
   try {
-    const { userName, email, password } = req.body;
-
-    if (!userName || !email || !password) {
+    const { username, email, password } = req.body;
+    if (!username || !email || !password) {
       return res.status(400).json({ message: "All fields are required" });
     }
 
@@ -18,11 +17,10 @@ export const registerUser = async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const user = new User({
-      userName,
+      userName: username,
       email,
       password: hashedPassword,
     });
-
     await user.save();
 
     return res.status(201).json({ message: "User registered successfully" });
@@ -42,7 +40,6 @@ export const loginUser = async (req, res) => {
         .status(400)
         .json({ message: "Email and password are required" });
     }
-
     const existingUser = await User.findOne({ email });
     if (!existingUser) {
       return res.status(401).json({ message: "Invalid credentials" });
@@ -82,6 +79,7 @@ export const loginUser = async (req, res) => {
         email: existingUser.email,
         role: existingUser.role,
       },
+      success: true,
     });
   } catch (error) {
     console.error("Login Error:", error);
@@ -111,7 +109,7 @@ export const checkAuth = async (req, res) => {
       return res.status(401).json({ message: "Not authenticated" });
     }
 
-    return res.status(200).json({ user });
+    return res.status(200).json({ user, success: true });
   } catch (error) {
     console.error("Check Auth Error:", error);
     return res.status(500).json({ message: "Error checking authentication" });

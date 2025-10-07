@@ -40,6 +40,9 @@ export const editAddress = async (req, res) => {
   try {
     const { id } = req.user;
     const { addressId } = req.params;
+    console.log("id is", req.user);
+    console.log("id is", req.params);
+    console.log("id is", req.body);
     const { address, city, pincode, phone } = req.body;
 
     const existingAddress = await Address.findOne({

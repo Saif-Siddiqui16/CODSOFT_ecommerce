@@ -1,38 +1,98 @@
 import { Button } from "@/components/ui/button";
+import { useAppDispatch } from "@/data/hook";
+import { loginUser } from "@/store/auth-slice";
+import { useState, type ChangeEvent, type FormEvent } from "react";
+import { Link, useNavigate } from "react-router-dom";
 
-const loginData = [
-  { id: 1, name: "Email" },
-  { id: 2, name: "Password" },
-];
+export interface LoginFormData {
+  email: string;
+  password: string;
+}
 
 const Login = () => {
+  const navigate = useNavigate();
+  const dispatch = useAppDispatch();
+  const [form, setForm] = useState<LoginFormData>({
+    email: "",
+    password: "",
+  });
+
+  const handleChange = (e: ChangeEvent<HTMLInputElement>): void => {
+    const { name, value } = e.target;
+    setForm((prevForm) => ({
+      ...prevForm,
+      [name]: value,
+    }));
+  };
+
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const data = await dispatch(loginUser(form));
+
+    if (data.payload.success) {
+      navigate("/home", { replace: true });
+    }
+  };
+
   return (
-    <div className="mx-auto min-h-screen flex justify-center items-center">
-      <div className="flex flex-col p-4 shadow-2xl border rounded-lg">
-        <h1 className="shadow-2xl text-4xl uppercase flex items-center justify-center">
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
+      <div className="w-full max-w-md bg-white p-8 shadow-xl border border-gray-200 rounded-lg">
+        <h1 className="text-3xl font-bold text-center text-gray-800 mb-6 uppercase">
           Login
         </h1>
-        <form action="">
-          <div className="flex flex-col gap-5 mt-5">
-            {loginData.map((loginForm) => (
-              <div className="flex justify-between gap-3" key={loginForm.id}>
-                <label className="font-bold">{loginForm.name}</label>
-                <input
-                  type="text"
-                  className="border border-gray-500 px-2 py-1"
-                />
-              </div>
-            ))}
-            <Button className="cursor-pointer">Login</Button>
-            <div>
-              <p>
-                <span className="text-sm">Didn't have account:</span>
-                <span className="text-blue-600 uppercase font-semibold cursor-pointer mx-5">
-                  {" "}
-                  Sign up
-                </span>
-              </p>
-            </div>
+
+        <form onSubmit={handleSubmit} className="space-y-5">
+          <div className="flex flex-col">
+            <label
+              htmlFor="email"
+              className="mb-1 text-sm font-medium text-gray-700"
+            >
+              Email
+            </label>
+            <input
+              id="email"
+              name="email"
+              type="email"
+              value={form.email}
+              onChange={handleChange}
+              required
+              className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-400 transition"
+            />
+          </div>
+
+          <div className="flex flex-col">
+            <label
+              htmlFor="password"
+              className="mb-1 text-sm font-medium text-gray-700"
+            >
+              Password
+            </label>
+            <input
+              id="password"
+              name="password"
+              type="password"
+              value={form.password}
+              onChange={handleChange}
+              required
+              className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-400 transition"
+            />
+          </div>
+
+          <Button
+            type="submit"
+            className="w-full bg-amber-500 hover:bg-amber-600 transition"
+          >
+            Login
+          </Button>
+
+          <div className="text-center text-sm text-gray-600">
+            Don't have an account?{" "}
+            <Link
+              to="/register"
+              className="text-blue-600 font-medium hover:underline"
+            >
+              Sign up here
+            </Link>
           </div>
         </form>
       </div>
