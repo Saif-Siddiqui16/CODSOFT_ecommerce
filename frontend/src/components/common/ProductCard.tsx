@@ -1,25 +1,19 @@
 import React, { useCallback, useState } from "react";
 import { Button } from "@/components/ui/button";
-import type { Product } from "@/data/products";
+import type { Product } from "@/lib/types";
 
 interface Props {
   product: Product;
   onAddToCart: (product: Product) => void;
 }
 
-const ProductCard: React.FC<Props> = ({ product, onAddToCart }) => {
+const ProductCard: React.FC<Props> = React.memo(({ product, onAddToCart }) => {
   const [added, setAdded] = useState(false);
 
   const handleAdd = useCallback(() => {
     onAddToCart(product);
-
-    // Show "Added" feedback
     setAdded(true);
-
-    // Reset after 1.5 seconds
-    setTimeout(() => {
-      setAdded(false);
-    }, 1500);
+    setTimeout(() => setAdded(false), 1500);
   }, [onAddToCart, product]);
 
   return (
@@ -47,6 +41,6 @@ const ProductCard: React.FC<Props> = ({ product, onAddToCart }) => {
       </div>
     </div>
   );
-};
+});
 
 export default ProductCard;

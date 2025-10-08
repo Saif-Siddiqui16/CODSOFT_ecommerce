@@ -27,7 +27,7 @@ const App: React.FC = () => {
 
           {/* Protected Routes */}
           <Route
-            path="/home"
+            path="/"
             element={
               <ProtectedRoute>
                 <ShoppingHome />

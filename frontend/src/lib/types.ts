@@ -1,53 +1,81 @@
-export interface ProductType {
-  id: string;
-  name: string;
-  price: number;
-  category?: string;
-  image: string;
-  description?: string;
-}
-export interface CartItemType {
-  product: ProductType;
-  quantity: number;
-}
+// -------------------------
+// 🛍️ Product
+// -------------------------
 export interface Product {
-  id: string;
+  _id: string;
   name: string;
   description: string;
-  image: string;
   price: number;
+  image: string;
   category: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
+// -------------------------
+// 👤 User
+// -------------------------
 export interface User {
-  id: string;
+  _id: string;
   userName: string;
   email: string;
   role: "user" | "admin";
+  createdAt?: string;
+  updatedAt?: string;
 }
 
-export interface CartItem {
-  productId: string;
-  quantity: number;
-  product?: Product;
-}
-
-export interface Cart {
-  id: string;
-  userId: string;
-  items: CartItem[];
-}
-
+// -------------------------
+// 🏠 Address
+// -------------------------
 export interface Address {
-  id: string;
+  _id: string;
+  userId: string;
   address: string;
   city: string;
   pincode: string;
   phone: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
+// -------------------------
+// 🛒 Cart
+// -------------------------
+export interface CartItems {
+  _id: string;
+  productId: Product;
+  quantity: number;
+}
+
+export interface Cart {
+  _id: string;
+  userId: string;
+  items: CartItems[];
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+// -------------------------
+// 💳 Payment
+// -------------------------
+export interface Payment {
+  _id: string;
+  orderId: string;
+  userId: string;
+  paymentMethod: string;
+  paymentStatus: string;
+  paymentId: string;
+  amountPaid: number;
+  paymentDate: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+// -------------------------
+// 📦 Order
+// -------------------------
 export interface OrderItem {
-  productId: string;
+  productId: string | Product;
   title: string;
   image: string;
   price: number;
@@ -55,13 +83,28 @@ export interface OrderItem {
 }
 
 export interface Order {
-  id: string;
+  _id: string;
   userId: string;
+  cartId: string;
   cartItems: OrderItem[];
+  addressInfo: {
+    addressId: string;
+    address: string;
+    city: string;
+    pincode: string;
+    phone: string;
+  };
+  orderStatus: "Pending" | "Paid" | "Shipped" | "Delivered" | "Cancelled";
   totalAmount: number;
-  orderStatus: "Pending" | "Shipped" | "Delivered" | "Cancelled";
-  addressInfo: Address;
-  payment?: any;
   orderDate: string;
   orderUpdateDate: string;
+  paymentId?: string | Payment;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface PaymentInfo {
+  amount_total: number;
+  customer_email: string;
+  payment_status: string;
 }

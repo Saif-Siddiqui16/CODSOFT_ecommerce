@@ -9,7 +9,8 @@ interface Props {
 
 const AddressForm: React.FC<Props> = ({ onSubmit, initialData }) => {
   const [form, setForm] = useState<Address>({
-    id: initialData?.id || "",
+    _id: initialData?._id || "",
+    userId: initialData?.userId || "",
     address: initialData?.address || "",
     city: initialData?.city || "",
     pincode: initialData?.pincode || "",

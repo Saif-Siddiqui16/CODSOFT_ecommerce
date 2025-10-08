@@ -2,26 +2,21 @@ import Cart from "../models/Cart.js";
 
 export const createCart = async (req, res) => {
   try {
-    const { id } = req.user; // logged-in user
+    const { id } = req.user;
     const { productId } = req.body;
 
-    // Find existing cart for user
     let cart = await Cart.findOne({ userId: id });
 
     if (!cart) {
-      // No cart exists → create new cart with item quantity 1
       cart = new Cart({ userId: id, items: [{ productId, quantity: 1 }] });
     } else {
-      // Cart exists → check if item already in cart
       const itemExists = cart.items.some(
         (item) => item.productId.toString() === productId
       );
 
       if (!itemExists) {
-        // Only add new item if it doesn't exist
         cart.items.push({ productId, quantity: 1 });
       }
-      // ELSE: do nothing, do not increment quantity
     }
 
     await cart.save();

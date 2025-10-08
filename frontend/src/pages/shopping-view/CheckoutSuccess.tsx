@@ -1,14 +1,15 @@
-import React, { useEffect, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import type { PaymentInfo } from "@/lib/types";
 import axios from "axios";
+import { useEffect, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 
 const CheckoutSuccess = () => {
-  const [paymentInfo, setPaymentInfo] = useState(null);
+  const [paymentInfo, setPaymentInfo] = useState<PaymentInfo | null>(null);
+  console.log(paymentInfo);
   const [loading, setLoading] = useState(true);
   const location = useLocation();
   const navigate = useNavigate();
   const sessionId = new URLSearchParams(location.search).get("session_id");
-  console.log(sessionId);
 
   useEffect(() => {
     const verifyPayment = async () => {

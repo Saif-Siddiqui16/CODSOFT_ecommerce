@@ -13,7 +13,7 @@ const Header = () => {
       <div className="hidden md:flex w-full items-center justify-between">
         <h1 className="text-2xl font-bold tracking-wide">Ecommerce App</h1>
         <nav className="flex gap-6 font-medium text-gray-800">
-          <Link to="/home" className="hover:underline">
+          <Link to="/" className="hover:underline">
             Home
           </Link>
           <Link to="/cart" className="hover:underline">
@@ -36,7 +36,7 @@ const Header = () => {
             <SheetHeader>
               <SheetTitle className="text-xl">Navigation</SheetTitle>
               <div className="flex flex-col items-start mt-4 gap-4">
-                <Link to="/home" className="hover:underline">
+                <Link to="/" className="hover:underline">
                   Home
                 </Link>
                 <Link to="/cart" className="hover:underline">

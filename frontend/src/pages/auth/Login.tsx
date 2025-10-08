@@ -30,7 +30,7 @@ const Login = () => {
     const data = await dispatch(loginUser(form));
 
     if (data.payload.success) {
-      navigate("/home", { replace: true });
+      navigate("/", { replace: true });
     }
   };
 

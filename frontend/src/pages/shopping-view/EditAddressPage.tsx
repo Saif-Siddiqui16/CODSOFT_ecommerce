@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useAppDispatch } from "@/data/hook";
 import { editaAddress, fetchAllAddresses } from "@/store/shop/address-slice";
+import type { Address } from "@/lib/types";
 
 export interface AddressForm {
   address: string;
@@ -32,9 +33,9 @@ const EditAddressPage: React.FC = () => {
     const fetchAddress = async () => {
       if (!addressId) return;
 
-      const response: any = await dispatch(fetchAllAddresses());
+      const response = await dispatch(fetchAllAddresses());
       const existing = response.payload.find(
-        (addr: any) => addr._id === addressId
+        (addr: Address) => addr._id === addressId
       );
 
       if (existing) {
@@ -61,7 +62,6 @@ const EditAddressPage: React.FC = () => {
 
     try {
       await dispatch(editaAddress({ addressId, formData: form })).unwrap();
-      // navigate back to profile page after success
       navigate("/account/addresses");
     } catch (err) {
       console.error("Failed to update address:", err);

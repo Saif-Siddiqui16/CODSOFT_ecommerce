@@ -1,12 +1,41 @@
 import axios from "axios";
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import type { Product } from "@/lib/types";
 
-const initialState = {
+interface AddToCartArgs {
+  productId: string;
+}
+interface DeletItem {
+  itemId: string;
+}
+interface UpdateCart {
+  itemId: string;
+  quantity: number;
+}
+
+interface CartItem {
+  _id: string;
+  productId: Product;
+  quantity: number;
+}
+
+interface CartResponse {
+  _id: string;
+  userId: string;
+  items: CartItem[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+interface CartState {
+  cartItems: CartItem[];
+  isLoading: boolean;
+}
+const initialState: CartState = {
   cartItems: [],
   isLoading: false,
 };
-
-export const addToCart = createAsyncThunk(
+export const addToCart = createAsyncThunk<CartResponse, AddToCartArgs>(
   "cart/addToCart",
   async ({ productId }) => {
     const response = await axios.post(
@@ -16,6 +45,7 @@ export const addToCart = createAsyncThunk(
       },
       { withCredentials: true }
     );
+    console.log(response.data);
 
     return response.data;
   }
@@ -32,7 +62,7 @@ export const fetchCartItems = createAsyncThunk(
   }
 );
 
-export const deleteCartItem = createAsyncThunk(
+export const deleteCartItem = createAsyncThunk<CartResponse, DeletItem>(
   "cart/deleteCartItem",
   async ({ itemId }) => {
     const response = await axios.delete(
@@ -46,7 +76,7 @@ export const deleteCartItem = createAsyncThunk(
   }
 );
 
-export const updateCartQuantity = createAsyncThunk(
+export const updateCartQuantity = createAsyncThunk<CartResponse, UpdateCart>(
   "cart/updateCartQuantity",
   async ({ itemId, quantity }) => {
     const response = await axios.put(
