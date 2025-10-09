@@ -14,6 +14,10 @@ import Profile from "./pages/shopping-view/Profile";
 import EditAddressPage from "./pages/shopping-view/EditAddressPage";
 import Checkout from "./pages/shopping-view/Checkout";
 import CheckoutSuccess from "./pages/shopping-view/CheckoutSuccess";
+import AdminHomePage from "./pages/admin/AdminHomePage";
+import CreateProductPage from "./pages/admin/CreateProductPage";
+import EditProductPage from "./pages/admin/EditProductPage";
+import OrderDetailsPage from "./pages/shopping-view/OrderDetailsPage";
 
 const App: React.FC = () => {
   return (
@@ -31,6 +35,14 @@ const App: React.FC = () => {
             element={
               <ProtectedRoute>
                 <ShoppingHome />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/order/:orderId"
+            element={
+              <ProtectedRoute>
+                <OrderDetailsPage />
               </ProtectedRoute>
             }
           />
@@ -86,9 +98,16 @@ const App: React.FC = () => {
           {/* Product Routes */}
 
           {/* Admin Routes */}
-          {/*
-    <Route
-            path="/admin/products/create"
+          <Route
+            path="/admin"
+            element={
+              <ProtectedRoute>
+                <AdminHomePage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/products/add"
             element={
               <ProtectedRoute>
                 <CreateProductPage />
@@ -103,8 +122,6 @@ const App: React.FC = () => {
               </ProtectedRoute>
             }
           />
-    
-    */}
         </Routes>
       </Router>
     </div>

@@ -30,6 +30,7 @@ const Login = () => {
     const data = await dispatch(loginUser(form));
 
     if (data.payload.success) {
+      console.log("data.payload", data.payload);
       navigate("/", { replace: true });
     }
   };

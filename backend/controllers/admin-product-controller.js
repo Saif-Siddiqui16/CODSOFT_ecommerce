@@ -62,6 +62,8 @@ export const updateProduct = async (req, res) => {
         return res.status(500).json({ message: "Image upload failed" });
       }
       product.image = uploadResult.secure_url;
+    } else if (req.body.existingImage) {
+      product.image = req.body.existingImage;
     }
 
     await product.save();

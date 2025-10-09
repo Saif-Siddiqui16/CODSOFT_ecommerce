@@ -1,6 +1,3 @@
-// -------------------------
-// 🛍️ Product
-// -------------------------
 export interface Product {
   _id: string;
   name: string;
@@ -11,10 +8,6 @@ export interface Product {
   createdAt?: string;
   updatedAt?: string;
 }
-
-// -------------------------
-// 👤 User
-// -------------------------
 export interface User {
   _id: string;
   userName: string;
@@ -24,9 +17,6 @@ export interface User {
   updatedAt?: string;
 }
 
-// -------------------------
-// 🏠 Address
-// -------------------------
 export interface Address {
   _id: string;
   userId: string;
@@ -38,9 +28,6 @@ export interface Address {
   updatedAt?: string;
 }
 
-// -------------------------
-// 🛒 Cart
-// -------------------------
 export interface CartItems {
   _id: string;
   productId: Product;
@@ -55,9 +42,6 @@ export interface Cart {
   updatedAt?: string;
 }
 
-// -------------------------
-// 💳 Payment
-// -------------------------
 export interface Payment {
   _id: string;
   orderId: string;
@@ -71,9 +55,6 @@ export interface Payment {
   updatedAt?: string;
 }
 
-// -------------------------
-// 📦 Order
-// -------------------------
 export interface OrderItem {
   productId: string | Product;
   title: string;
@@ -108,3 +89,21 @@ export interface PaymentInfo {
   customer_email: string;
   payment_status: string;
 }
+
+export const CATEGORIES = [
+  "Accessories",
+  "Electronics",
+  "Shoes",
+  "Clothing",
+  "Home",
+  "Stationery",
+  "Sports",
+  "Beauty & Personal Care",
+  "Books",
+  "Toys & Games",
+  "Kitchen & Dining",
+  "Outdoor & Garden",
+  "Automotive",
+  "Health & Wellness",
+  "Other",
+];

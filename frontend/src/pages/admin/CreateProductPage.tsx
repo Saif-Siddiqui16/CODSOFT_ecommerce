@@ -1,16 +1,18 @@
-// pages/admin/CreateProductPage.tsx
-/*
-import { products, type Product } from "@/data/products";
+import type { ProductFormData } from "@/components/common/admin/ProductForm";
+import ProductForm from "@/components/common/admin/ProductForm";
+import { useAppDispatch } from "@/data/hook";
+import { createProduct } from "@/store/shop/product-slice";
 import { useNavigate } from "react-router-dom";
 
 const CreateProductPage = () => {
   const navigate = useNavigate();
-
-  const handleCreate = (newProduct: Product) => {
-    const id = products.length + 1;
-    products.push({ ...newProduct, id });
+  const dispatch = useAppDispatch();
+  const handleCreate = async (data: ProductFormData) => {
+    console.log("Submit new product:", data);
+    const response = await dispatch(createProduct(data));
+    console.log(response);
     alert("Product created!");
-    navigate("/"); // or /admin/products
+    navigate("/");
   };
 
   return (
@@ -22,4 +24,3 @@ const CreateProductPage = () => {
 };
 
 export default CreateProductPage;
-*/

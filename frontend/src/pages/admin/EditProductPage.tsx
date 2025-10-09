@@ -1,42 +1,38 @@
-/*
-import { useParams, useNavigate } from "react-router-dom";
+import type { ProductFormData } from "@/components/common/admin/ProductForm";
+import ProductForm from "@/components/common/admin/ProductForm";
+import { useAppDispatch } from "@/data/hook";
+import { fetchProductDetails, updateProduct } from "@/store/shop/product-slice";
 import { useEffect, useState } from "react";
-import { products, type Product } from "@/data/products";
-import ProductForm from "@/components/common/ProductForm";
+import { useNavigate, useParams } from "react-router-dom";
 
 const EditProductPage = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const [productToEdit, setProductToEdit] = useState<Product | null>(null);
-
+  const [product, setProduct] = useState<ProductFormData | null>(null);
+  const dispatch = useAppDispatch();
+  const fetchProductDetail = async () => {
+    if (!id) return;
+    const data = await dispatch(fetchProductDetails(id));
+    setProduct(data.payload);
+  };
   useEffect(() => {
-    const found = products.find((p) => p.id === Number(id));
-    if (found) {
-      setProductToEdit(found);
-    } else {
-      alert("Product not found");
-      navigate("/");
-    }
-  }, [id]);
+    fetchProductDetail();
+  }, []);
 
-  const handleUpdate = (updated: Product) => {
-    const index = products.findIndex((p) => p.id === updated.id);
-    if (index !== -1) {
-      products[index] = updated;
-      alert("Product updated!");
-      navigate("/");
-    }
+  const handleUpdate = (formData: FormData) => {
+    dispatch(updateProduct({ id: id!, formData }));
+    alert("Product updated!");
+    navigate("/admin");
   };
 
-  if (!productToEdit) return null;
+  if (!product) return null;
 
   return (
     <div className="min-h-screen p-6 bg-gray-50">
       <h1 className="text-3xl font-bold mb-6">Edit Product</h1>
-      <ProductForm initialData={productToEdit} onSubmit={handleUpdate} />
+      <ProductForm initialData={product} onSubmit={handleUpdate} />
     </div>
   );
 };
 
 export default EditProductPage;
-*/

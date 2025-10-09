@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -7,27 +7,28 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { useAppDispatch } from "@/data/hook";
+import { Label } from "@/components/ui/label";
+import { useAppDispatch, useAppSelector } from "@/data/hook";
 import {
   addNewAddress,
   deleteAddress,
   fetchAllAddresses,
 } from "@/store/shop/address-slice";
+import { fetchAllOrders } from "@/store/shop/order-slice";
+import Pagination from "@/components/common/Pagination";
+import type { RootState } from "@/store/store";
+import type { Order } from "@/lib/types";
 import { useNavigate } from "react-router-dom";
-import { Label } from "@/components/ui/label";
 
-// Dummy data placeholders (replace with Redux selectors / API calls)
-const dummyUser = { username: "John Doe", email: "john@example.com" };
-
-const dummyOrders = [
-  { id: "1", totalAmount: 120, status: "Delivered", date: "2025-10-07" },
-  { id: "2", totalAmount: 45, status: "Pending", date: "2025-10-05" },
-];
+const ITEMS_PER_PAGE = 5;
 
 const Profile: React.FC = () => {
-  const [addresses, setAddresses] = useState([]);
   const dispatch = useAppDispatch();
+  const { user } = useAppSelector((state: RootState) => state.auth);
   const navigate = useNavigate();
+  const [addresses, setAddresses] = useState<any[]>([]);
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [orderPage, setOrderPage] = useState(1);
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [newAddress, setNewAddress] = useState({
@@ -36,38 +37,47 @@ const Profile: React.FC = () => {
     pincode: "",
     phone: "",
   });
-  const handleDeleteAddress = async (id: string) => {
-    try {
-      await dispatch(deleteAddress(id));
-      fetchAddress(); // Refresh list automatically
-    } catch (err) {
-      console.error("Failed to delete address", err);
-    }
-  };
-  const handleEditAddress = (id: string) => {
-    navigate(`/address/${id}`);
-  };
-  const handleCreateAddress = async () => {
-    try {
-      await dispatch(addNewAddress(newAddress));
-      setNewAddress({ address: "", city: "", pincode: "", phone: "" });
-      setIsDialogOpen(false);
-      fetchAddress();
-    } catch (err) {
-      console.error("Failed to add address", err);
-    }
-  };
 
-  const fetchAddress = async () => {
+  // Fetch addresses
+  const fetchAddress = useCallback(async () => {
     const data = await dispatch(fetchAllAddresses());
-    console.log("data", data);
-    if (data.payload) {
-      setAddresses(data.payload);
-    }
-  };
+    if (data.payload) setAddresses(data.payload);
+  }, [dispatch]);
+
+  // Fetch orders
+  const fetchOrders = useCallback(async () => {
+    const result = await dispatch(fetchAllOrders());
+    if (result.payload) setOrders(result.payload);
+  }, [dispatch]);
+
   useEffect(() => {
     fetchAddress();
-  }, []);
+    fetchOrders();
+  }, [fetchAddress, fetchOrders]);
+
+  const handleDeleteAddress = async (id: string) => {
+    await dispatch(deleteAddress(id));
+    fetchAddress();
+  };
+
+  const handleEditAddress = (id: string) => {
+    // Navigate to edit address page
+    // navigate(`/address/${id}`);
+  };
+
+  const handleCreateAddress = async () => {
+    await dispatch(addNewAddress(newAddress));
+    setNewAddress({ address: "", city: "", pincode: "", phone: "" });
+    setIsDialogOpen(false);
+    fetchAddress();
+  };
+
+  // Pagination
+  const totalOrderPages = Math.ceil(orders.length / ITEMS_PER_PAGE);
+  const paginatedOrders = orders.slice(
+    (orderPage - 1) * ITEMS_PER_PAGE,
+    orderPage * ITEMS_PER_PAGE
+  );
 
   return (
     <div className="container mx-auto p-6 space-y-8">
@@ -75,10 +85,10 @@ const Profile: React.FC = () => {
       <section className="bg-white p-6 rounded shadow">
         <h1 className="text-2xl font-bold mb-4">Profile</h1>
         <p>
-          <strong>Username:</strong> {dummyUser.username}
+          <strong>Username:</strong> {user?.userName}
         </p>
         <p>
-          <strong>Email:</strong> {dummyUser.email}
+          <strong>Email:</strong> {user?.email}
         </p>
       </section>
 
@@ -94,7 +104,6 @@ const Profile: React.FC = () => {
               <DialogHeader>
                 <DialogTitle>Add New Address</DialogTitle>
               </DialogHeader>
-              {/* Form */}
               <div className="space-y-3 mt-4">
                 <Label>Address</Label>
                 <input
@@ -151,7 +160,7 @@ const Profile: React.FC = () => {
         <div className="space-y-3">
           {addresses.map((addr) => (
             <div
-              key={addr.id}
+              key={addr._id}
               className="border p-3 rounded flex justify-between items-center"
             >
               <div>
@@ -183,21 +192,34 @@ const Profile: React.FC = () => {
       <section className="bg-white p-6 rounded shadow">
         <h2 className="text-xl font-semibold mb-4">Orders</h2>
         <div className="space-y-3">
-          {dummyOrders.map((order) => (
+          {paginatedOrders.length === 0 && <p>No orders found.</p>}
+          {paginatedOrders.map((order) => (
             <div
-              key={order.id}
+              key={order._id}
               className="border p-3 rounded flex justify-between items-center"
             >
               <div>
-                <p>Order ID: {order.id}</p>
+                <p>Order ID: {order._id}</p>
                 <p>Total Amount: ${order.totalAmount}</p>
-                <p>Status: {order.status}</p>
-                <p>Date: {order.date}</p>
+                <p>Status: {order.orderStatus}</p>
+                <p>Date: {new Date(order.orderDate).toLocaleDateString()}</p>
               </div>
-              <Button variant="outline">View Details</Button>
+              <Button
+                variant="outline"
+                onClick={() => navigate(`/order/${order._id}`)}
+              >
+                View Details
+              </Button>
             </div>
           ))}
         </div>
+
+        {/* Pagination */}
+        <Pagination
+          currentPage={orderPage}
+          totalPages={totalOrderPages}
+          onPageChange={setOrderPage}
+        />
       </section>
     </div>
   );

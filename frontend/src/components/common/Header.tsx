@@ -5,11 +5,25 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { Link } from "react-router-dom";
+import { useAppDispatch, useAppSelector } from "@/data/hook";
+import type { RootState } from "@/store/store";
+import { Link, useNavigate } from "react-router-dom";
+import { Button } from "../ui/button";
+import { logoutUser } from "@/store/auth-slice";
 
 const Header = () => {
+  const { isAuthenticated, user } = useAppSelector(
+    (state: RootState) => state.auth
+  );
+  const dispatch = useAppDispatch();
+  const navigate = useNavigate();
+
+  const handleAdminPage = () => navigate("/admin");
+  const handleLogout = () => dispatch(logoutUser());
+
   return (
     <header className="h-[100px] w-full bg-amber-300 flex items-center px-4 md:px-10 shadow-md">
+      {/* Desktop Header */}
       <div className="hidden md:flex w-full items-center justify-between">
         <h1 className="text-2xl font-bold tracking-wide">Ecommerce App</h1>
         <nav className="flex gap-6 font-medium text-gray-800">
@@ -22,6 +36,10 @@ const Header = () => {
           <Link to="/profile" className="hover:underline">
             Profile
           </Link>
+          {isAuthenticated && <Button onClick={handleLogout}>Logout</Button>}
+          {user?.role === "admin" && (
+            <Button onClick={handleAdminPage}>Admin Home</Button>
+          )}
         </nav>
       </div>
 
@@ -45,6 +63,18 @@ const Header = () => {
                 <Link to="/profile" className="hover:underline">
                   Profile
                 </Link>
+
+                {isAuthenticated && (
+                  <Button onClick={handleLogout} className="w-full">
+                    Logout
+                  </Button>
+                )}
+
+                {user?.role === "admin" && (
+                  <Button onClick={handleAdminPage} className="w-full">
+                    Admin Home
+                  </Button>
+                )}
               </div>
             </SheetHeader>
           </SheetContent>

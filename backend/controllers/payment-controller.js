@@ -59,37 +59,6 @@ export const createPayment = async (req, res) => {
       },
     });
     res.status(200).json({ url: session.url });
-    /*
-    const order = await Order.findOne({ _id: orderId, userId });
-    if (!order) {
-      return res.status(404).json({ message: "Order not found" });
-    }
-
-    const paymentIntent = await stripe.paymentIntents.create({
-      amount: Math.round(order.totalAmount * 100),
-      payment_method: "card",
-      currency: "inr",
-      success_url: `${process.env.CLIENT_URL}/purchase-success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${process.env.CLIENT_URL}/purchase-cancel`,
-      metadata: {
-        orderId: order._id.toString(),
-        userId: userId.toString(),
-      },
-    });
-
-    const payment = new Payment({
-      orderId: order._id,
-      userId,
-      paymentMethod: "card",
-      paymentStatus: "Pending",
-      amountPaid: order.totalAmount,
-      paymentDate: new Date(),
-      paymentId: paymentIntent.id,
-    });
-
-    await payment.save();
-
-    res.status(200).json({ clientSecret: paymentIntent.client_secret });*/
   } catch (error) {
     console.error("Create Payment Error:", error);
     res.status(500).json({ message: "Failed to create payment" });

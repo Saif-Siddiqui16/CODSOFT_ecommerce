@@ -12,7 +12,6 @@ const ShoppingHome = () => {
   const { productList: products, isLoading } = useAppSelector(
     (state: RootState) => state.product
   );
-  console.log("products", products);
 
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [sortOption, setSortOption] = useState<string>("");
