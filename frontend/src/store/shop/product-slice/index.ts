@@ -16,7 +16,7 @@ export interface Product {
   createdAt: string;
 }
 
-interface ProductState {
+export interface ProductState {
   isLoading: boolean;
   productList: Product[];
   productDetails: Product | null;

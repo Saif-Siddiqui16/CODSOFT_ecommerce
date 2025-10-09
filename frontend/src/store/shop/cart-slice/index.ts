@@ -13,7 +13,7 @@ interface UpdateCart {
   quantity: number;
 }
 
-interface CartItem {
+export interface CartItem {
   _id: string;
   productId: Product;
   quantity: number;
@@ -27,7 +27,7 @@ interface CartResponse {
   updatedAt: string;
 }
 
-interface CartState {
+export interface CartState {
   cartItems: CartItem[];
   isLoading: boolean;
 }

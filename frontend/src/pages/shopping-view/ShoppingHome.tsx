@@ -9,7 +9,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 
 const ShoppingHome = () => {
   const dispatch = useAppDispatch();
-  const { productList: products, isLoading } = useAppSelector(
+  const { productList: products = [], isLoading } = useAppSelector(
     (state: RootState) => state.product
   );
 
@@ -25,7 +25,10 @@ const ShoppingHome = () => {
   }, [dispatch]);
 
   const allCategories = useMemo(
-    () => Array.from(new Set(products.map((p) => p.category))).filter(Boolean),
+    () =>
+      Array.from(new Set((products || []).map((p) => p.category))).filter(
+        Boolean
+      ),
     [products]
   );
 
@@ -62,6 +65,7 @@ const ShoppingHome = () => {
   );
 
   const filteredProducts = useMemo(() => {
+    if (!products) return [];
     return products
       .filter((p) =>
         selectedCategories.length
