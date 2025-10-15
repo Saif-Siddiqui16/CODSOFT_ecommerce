@@ -1,14 +1,15 @@
 import axios from "axios";
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import type { Product } from "@/lib/types";
+import { API_BASE_URL } from "@/store/auth-slice";
 
-interface AddToCartArgs {
+export interface AddToCartArgs {
   productId: string;
 }
-interface DeleteItem {
+export interface DeleteItem {
   itemId: string;
 }
-interface UpdateCart {
+export interface UpdateCart {
   itemId: string;
   quantity: number;
 }
@@ -19,7 +20,7 @@ export interface CartItem {
   quantity: number;
 }
 
-interface CartResponse {
+export interface CartResponse {
   _id: string;
   userId: string;
   items: CartItem[];
@@ -44,7 +45,7 @@ export const addToCart = createAsyncThunk<CartResponse, AddToCartArgs>(
   async ({ productId }, { rejectWithValue }) => {
     try {
       const response = await axios.post(
-        "http://localhost:8000/api/shop/cart",
+        `${API_BASE_URL}/api/shop/cart`,
         { productId },
         { withCredentials: true }
       );
@@ -61,7 +62,7 @@ export const fetchCartItems = createAsyncThunk<CartResponse>(
   "cart/fetchCartItems",
   async (_, { rejectWithValue }) => {
     try {
-      const response = await axios.get(`http://localhost:8000/api/shop/cart`, {
+      const response = await axios.get(`${API_BASE_URL}/api/shop/cart`, {
         withCredentials: true,
       });
       return response.data;
@@ -78,7 +79,7 @@ export const deleteCartItem = createAsyncThunk<CartResponse, DeleteItem>(
   async ({ itemId }, { rejectWithValue }) => {
     try {
       const response = await axios.delete(
-        `http://localhost:8000/api/shop/cart/${itemId}`,
+        `${API_BASE_URL}/api/shop/cart/${itemId}`,
         { withCredentials: true }
       );
       return response.data;
@@ -95,7 +96,7 @@ export const updateCartQuantity = createAsyncThunk<CartResponse, UpdateCart>(
   async ({ itemId, quantity }, { rejectWithValue }) => {
     try {
       const response = await axios.put(
-        `http://localhost:8000/api/shop/cart/${itemId}`,
+        `${API_BASE_URL}/api/shop/cart/${itemId}`,
         { quantity },
         { withCredentials: true }
       );

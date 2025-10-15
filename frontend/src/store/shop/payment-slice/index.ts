@@ -1,7 +1,8 @@
+import { API_BASE_URL } from "@/store/auth-slice";
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import axios from "axios";
 
-interface PaymentState {
+export interface PaymentState {
   isLoading: boolean;
   status: string | null;
   error: string | null;
@@ -20,7 +21,7 @@ export const fetchPaymentStatus = createAsyncThunk<
 >("payment/fetchStatus", async (orderId, { rejectWithValue }) => {
   try {
     const res = await axios.get(
-      `http://localhost:8000/api/user/payment/status/${orderId}`,
+      `${API_BASE_URL}/api/user/payment/status/${orderId}`,
       { withCredentials: true }
     );
     return res.data.paymentStatus;

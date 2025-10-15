@@ -1,4 +1,5 @@
 import type { PaymentInfo } from "@/lib/types";
+import { API_BASE_URL } from "@/store/auth-slice";
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -14,7 +15,7 @@ const CheckoutSuccess = () => {
     const verifyPayment = async () => {
       try {
         const res = await axios.get(
-          `http://localhost:8000/api/user/payment/verify-session/${sessionId}`,
+          `${API_BASE_URL}/api/user/payment/verify-session/${sessionId}`,
           { withCredentials: true }
         );
         setPaymentInfo(res.data);

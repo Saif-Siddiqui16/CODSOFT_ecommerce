@@ -7,6 +7,7 @@ import { fetchCartItems } from "@/store/shop/cart-slice";
 import type { RootState } from "@/store/store";
 import axios from "axios";
 import { validateCoupon } from "@/store/shop/discount-slice";
+import { API_BASE_URL } from "@/store/auth-slice";
 
 export interface Address {
   _id: string;
@@ -81,7 +82,7 @@ const Checkout = () => {
     try {
       setIsLoading(true);
       const response = await axios.post(
-        `http://localhost:8000/api/user/payment/create-checkout-session`,
+        `${API_BASE_URL}/api/user/payment/create-checkout-session`,
         {
           cartItems,
           addressId: selectedAddressId,

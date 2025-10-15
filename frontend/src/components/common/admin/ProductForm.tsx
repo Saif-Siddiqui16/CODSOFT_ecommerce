@@ -3,7 +3,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { CATEGORIES } from "@/lib/types";
-import { useEffect, useState, type FormEvent } from "react";
+import { useEffect, useState, FormEvent } from "react";
 
 export interface ProductFormData {
   name: string;
@@ -15,7 +15,7 @@ export interface ProductFormData {
 
 interface ProductFormProps {
   initialData?: ProductFormData;
-  onSubmit: (data: FormData) => void;
+  onSubmit: (data: ProductFormData) => void;
 }
 
 const ProductForm: React.FC<ProductFormProps> = ({ initialData, onSubmit }) => {
@@ -31,7 +31,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialData, onSubmit }) => {
     e: React.ChangeEvent<
       HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
     >
-  ) => {
+  ): void => {
     const { name, value } = e.target;
     setForm((prev) => ({
       ...prev,
@@ -39,9 +39,10 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialData, onSubmit }) => {
     }));
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      setForm((prev) => ({ ...prev, image: e.target.files![0] }));
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setForm((prev) => ({ ...prev, image: file }));
     }
   };
 
@@ -51,7 +52,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialData, onSubmit }) => {
     }
   }, [initialData]);
 
-  const handleSubmit = (e: FormEvent) => {
+  const handleSubmit = (e: FormEvent): void => {
     e.preventDefault();
 
     if (!form.name || !form.description || !form.price || !form.category) {
@@ -59,26 +60,15 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialData, onSubmit }) => {
       return;
     }
 
-    const formData = new FormData();
-    formData.append("name", form.name);
-    formData.append("description", form.description);
-    formData.append("price", form.price.toString());
-    formData.append("category", form.category);
-
-    if (form.image && form.image instanceof File) {
-      formData.append("image", form.image);
-    } else if (typeof form.image === "string") {
-      formData.append("existingImage", form.image);
-    }
-
-    onSubmit(formData);
+    onSubmit(form);
   };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4 max-w-lg">
       <div>
-        <Label>Name</Label>
+        <Label htmlFor="name">Name</Label>
         <Input
+          id="name"
           type="text"
           name="name"
           value={form.name}
@@ -88,8 +78,9 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialData, onSubmit }) => {
       </div>
 
       <div>
-        <Label>Description</Label>
+        <Label htmlFor="description">Description</Label>
         <Textarea
+          id="description"
           name="description"
           value={form.description}
           onChange={handleChange}
@@ -98,8 +89,9 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialData, onSubmit }) => {
       </div>
 
       <div>
-        <Label>Price ($)</Label>
+        <Label htmlFor="price">Price ($)</Label>
         <Input
+          id="price"
           type="number"
           name="price"
           value={form.price}
@@ -110,8 +102,9 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialData, onSubmit }) => {
       </div>
 
       <div>
-        <Label>Category</Label>
+        <Label htmlFor="category">Category</Label>
         <select
+          id="category"
           name="category"
           value={form.category}
           onChange={handleChange}
@@ -127,8 +120,8 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialData, onSubmit }) => {
       </div>
 
       <div>
-        <Label>Image</Label>
-        <Input type="file" onChange={handleFileChange} />
+        <Label htmlFor="image">Image</Label>
+        <Input id="image" type="file" onChange={handleFileChange} />
         {typeof form.image === "string" && (
           <img
             src={form.image}

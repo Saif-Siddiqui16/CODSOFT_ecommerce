@@ -7,6 +7,8 @@ import axios from "axios";
 import type { RegisterFormData } from "@/pages/auth/Register";
 import type { LoginFormData } from "@/pages/auth/Login";
 
+export const API_BASE_URL = import.meta.env.VITE_API_BACKEND_URL;
+
 export interface User {
   id: string;
   userName: string;
@@ -14,12 +16,12 @@ export interface User {
   role: "user" | "admin";
 }
 
-interface BackendError {
+export interface BackendError {
   message: string;
   errors?: Record<string, string[]>;
 }
 
-interface AuthState {
+export interface AuthState {
   isAuthenticated: boolean;
   user: User | null;
   isLoading: boolean;
@@ -42,7 +44,7 @@ export const registerUser = createAsyncThunk<
 >("auth/register", async (formData, { rejectWithValue }) => {
   try {
     const response = await axios.post(
-      "http://localhost:8000/api/auth/register",
+      `${API_BASE_URL}/api/auth/register`,
       formData,
       { withCredentials: true }
     );
@@ -62,7 +64,7 @@ export const loginUser = createAsyncThunk<
 >("auth/login", async (formData, { rejectWithValue }) => {
   try {
     const response = await axios.post(
-      "http://localhost:8000/api/auth/login",
+      `${API_BASE_URL}/api/auth/login`,
       formData,
       { withCredentials: true }
     );
@@ -80,7 +82,7 @@ export const logoutUser = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const response = await axios.post(
-        "http://localhost:8000/api/auth/logout",
+        `${API_BASE_URL}/api/auth/logout`,
         {},
         { withCredentials: true }
       );
@@ -100,7 +102,7 @@ export const checkAuth = createAsyncThunk<
   { rejectValue: BackendError }
 >("auth/checkAuth", async (_, { rejectWithValue }) => {
   try {
-    const response = await axios.get("http://localhost:8000/api/auth/me", {
+    const response = await axios.get(`${API_BASE_URL}/api/auth/me`, {
       withCredentials: true,
       headers: {
         "Cache-Control":

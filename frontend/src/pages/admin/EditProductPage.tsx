@@ -10,6 +10,7 @@ const EditProductPage = () => {
   const navigate = useNavigate();
   const [product, setProduct] = useState<ProductFormData | null>(null);
   const dispatch = useAppDispatch();
+
   useEffect(() => {
     const fetchProduct = async () => {
       if (!id) return;
@@ -24,8 +25,10 @@ const EditProductPage = () => {
     fetchProduct();
   }, [id, dispatch, navigate]);
 
-  const handleUpdate = (formData: FormData) => {
-    dispatch(updateProduct({ id: id!, formData }));
+  // ✅ FIXED: Expect ProductFormData instead of FormData
+  const handleUpdate = async (data: ProductFormData) => {
+    if (!id) return;
+    await dispatch(updateProduct({ id, data }));
     alert("Product updated!");
     navigate("/admin");
   };

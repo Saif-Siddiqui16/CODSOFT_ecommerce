@@ -1,3 +1,4 @@
+import { API_BASE_URL } from "@/store/auth-slice";
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import axios from "axios";
 
@@ -8,7 +9,7 @@ export interface Coupon {
   expiresAt?: string;
 }
 
-interface CouponState {
+export interface CouponState {
   isLoading: boolean;
   coupons: Coupon[];
   validatedCoupon: Coupon | null;
@@ -35,7 +36,7 @@ export const fetchCoupons = createAsyncThunk<
   { rejectValue: string }
 >("coupon/fetchCoupons", async (_, { rejectWithValue }) => {
   try {
-    const res = await axios.get("http://localhost:8000/api/coupons", {
+    const res = await axios.get(`${API_BASE_URL}/api/coupons`, {
       withCredentials: true,
     });
     return res.data.coupons;
@@ -50,13 +51,9 @@ export const createCoupon = createAsyncThunk<
   { rejectValue: string }
 >("coupon/createCoupon", async (couponData, { rejectWithValue }) => {
   try {
-    const res = await axios.post(
-      "http://localhost:8000/api/coupons",
-      couponData,
-      {
-        withCredentials: true,
-      }
-    );
+    const res = await axios.post(`${API_BASE_URL}/api/coupons`, couponData, {
+      withCredentials: true,
+    });
     return res.data.coupon;
   } catch (error) {
     return rejectWithValue(getErrorMessage(error));
@@ -70,7 +67,7 @@ export const validateCoupon = createAsyncThunk<
 >("coupon/validateCoupon", async (code, { rejectWithValue }) => {
   try {
     const res = await axios.get(
-      `http://localhost:8000/api/coupons/validate/${code}`,
+      `${API_BASE_URL}/api/coupons/validate/${code}`,
       {
         withCredentials: true,
       }
@@ -87,7 +84,7 @@ export const deleteCoupon = createAsyncThunk<
   { rejectValue: string }
 >("coupon/deleteCoupon", async (couponId, { rejectWithValue }) => {
   try {
-    await axios.delete(`http://localhost:8000/api/coupons/${couponId}`, {
+    await axios.delete(`${API_BASE_URL}/api/coupons/${couponId}`, {
       withCredentials: true,
     });
     return couponId;

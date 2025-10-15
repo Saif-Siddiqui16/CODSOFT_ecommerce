@@ -54,7 +54,11 @@ const OrderDetailsPage: React.FC = () => {
         <div className="space-y-2">
           {orderDetails.cartItems.map((item) => (
             <div
-              key={item.productId._id || item.productId}
+              key={
+                typeof item.productId === "string"
+                  ? item.productId
+                  : item.productId._id
+              }
               className="border p-3 rounded flex justify-between"
             >
               <div>
@@ -66,8 +70,6 @@ const OrderDetailsPage: React.FC = () => {
           ))}
         </div>
       </section>
-
-      
 
       <Button onClick={() => window.history.back()}>Back</Button>
     </div>

@@ -1,4 +1,5 @@
 import type { ProductFormData } from "@/components/common/admin/ProductForm";
+import { API_BASE_URL } from "@/store/auth-slice";
 import {
   createAsyncThunk,
   createSlice,
@@ -27,10 +28,11 @@ const initialState: ProductState = {
   productList: [],
   productDetails: null,
 };
+
 export const deleteProduct = createAsyncThunk<string, string>(
   "products/deleteProduct",
   async (id: string) => {
-    await axios.delete(`http://localhost:8000/api/admin/product/${id}`, {
+    await axios.delete(`${API_BASE_URL}/api/admin/product/${id}`, {
       withCredentials: true,
     });
     return id;
@@ -40,48 +42,71 @@ export const deleteProduct = createAsyncThunk<string, string>(
 export const fetchProducts = createAsyncThunk(
   "/products/fetchProducts",
   async () => {
-    const result = await axios.get("http://localhost:8000/api/shop/products", {
+    const result = await axios.get(`${API_BASE_URL}/api/shop/products`, {
       withCredentials: true,
     });
     return result.data;
   }
 );
-export const createProduct = createAsyncThunk(
-  "/products/createProduct",
-  async (formData: ProductFormData) => {
-    console.log(formData);
-    const result = await axios.post(
-      "http://localhost:8000/api/admin/product",
-      formData,
-      {
-        withCredentials: true,
-      }
-    );
-    return result.data;
-  }
-);
-export const updateProduct = createAsyncThunk(
-  "/products/editProducts",
-  async ({ id, formData }: { id: string; formData: FormData }) => {
-    const result = await axios.put(
-      `http://localhost:8000/api/admin/product/${id}`,
+
+export const createProduct = createAsyncThunk<Product, ProductFormData>(
+  "products/createProduct",
+  async (data) => {
+    const formData = new FormData();
+    formData.append("name", data.name);
+    formData.append("description", data.description);
+    formData.append("price", data.price.toString());
+    formData.append("category", data.category);
+    if (data.image instanceof File) {
+      formData.append("image", data.image);
+    }
+
+    const response = await axios.post(
+      `${API_BASE_URL}/api/admin/product`,
       formData,
       {
         withCredentials: true,
         headers: { "Content-Type": "multipart/form-data" },
       }
     );
-    return result.data;
+
+    return response.data.product;
+  }
+);
+
+export const updateProduct = createAsyncThunk(
+  "/products/editProducts",
+  async ({ id, data }: { id: string; data: ProductFormData }) => {
+    const formData = new FormData();
+    formData.append("name", data.name);
+    formData.append("description", data.description);
+    formData.append("price", data.price.toString());
+    formData.append("category", data.category);
+
+    if (data.image instanceof File) {
+      formData.append("image", data.image);
+    } else if (typeof data.image === "string") {
+      formData.append("existingImage", data.image);
+    }
+
+    const result = await axios.put(
+      `${API_BASE_URL}/api/admin/product/${id}`,
+      formData,
+      {
+        withCredentials: true,
+        headers: { "Content-Type": "multipart/form-data" },
+      }
+    );
+    return result.data.product;
   }
 );
 
 export const fetchProductDetails = createAsyncThunk(
   "/products/fetchProductDetails",
   async (id: string) => {
-    const result = await axios.get(
-      `http://localhost:8000/api/shop/products/${id}`,
-      { withCredentials: true }
-    );
+    const result = await axios.get(`${API_BASE_URL}/api/shop/products/${id}`, {
+      withCredentials: true,
+    });
     return result.data;
   }
 );
@@ -110,7 +135,6 @@ const shoppingProductSlice = createSlice({
         state.isLoading = false;
         state.productList = [];
       })
-
       .addCase(fetchProductDetails.pending, (state) => {
         state.isLoading = true;
       })
@@ -125,7 +149,6 @@ const shoppingProductSlice = createSlice({
         state.isLoading = false;
         state.productDetails = null;
       })
-
       .addCase(createProduct.pending, (state) => {
         state.isLoading = true;
       })
@@ -139,7 +162,6 @@ const shoppingProductSlice = createSlice({
       .addCase(createProduct.rejected, (state) => {
         state.isLoading = false;
       })
-
       .addCase(updateProduct.pending, (state) => {
         state.isLoading = true;
       })
@@ -156,7 +178,6 @@ const shoppingProductSlice = createSlice({
       .addCase(updateProduct.rejected, (state) => {
         state.isLoading = false;
       })
-
       .addCase(deleteProduct.pending, (state) => {
         state.isLoading = true;
       })

@@ -5,8 +5,9 @@ import {
 } from "@reduxjs/toolkit";
 import axios from "axios";
 import type { Order } from "@/lib/types";
+import { API_BASE_URL } from "@/store/auth-slice";
 
-interface OrderState {
+export interface OrderState {
   isLoading: boolean;
   orders: Order[];
   userOrders: Order[];
@@ -35,7 +36,7 @@ export const fetchAllOrders = createAsyncThunk<
   { rejectValue: string }
 >("orders/fetchAllOrders", async (_, { rejectWithValue }) => {
   try {
-    const res = await axios.get("http://localhost:8000/api/admin/orders", {
+    const res = await axios.get(`${API_BASE_URL}/api/admin/orders`, {
       withCredentials: true,
     });
     return res.data.orders;
@@ -50,12 +51,9 @@ export const fetchUserOrders = createAsyncThunk<
   { rejectValue: string }
 >("orders/fetchUserOrders", async (_, { rejectWithValue }) => {
   try {
-    const res = await axios.get(
-      "http://localhost:8000/api/shop/order/my-orders",
-      {
-        withCredentials: true,
-      }
-    );
+    const res = await axios.get(`${API_BASE_URL}/api/shop/order/my-orders`, {
+      withCredentials: true,
+    });
     return res.data.orders;
   } catch (error) {
     return rejectWithValue(getErrorMessage(error));
@@ -68,10 +66,9 @@ export const fetchOrderById = createAsyncThunk<
   { rejectValue: string }
 >("orders/fetchOrderById", async (orderId, { rejectWithValue }) => {
   try {
-    const res = await axios.get(
-      `http://localhost:8000/api/shop/order/${orderId}`,
-      { withCredentials: true }
-    );
+    const res = await axios.get(`${API_BASE_URL}/api/shop/order/${orderId}`, {
+      withCredentials: true,
+    });
     return res.data.order;
   } catch (error) {
     return rejectWithValue(getErrorMessage(error));
@@ -87,7 +84,7 @@ export const updateOrderStatus = createAsyncThunk<
   async ({ orderId, status }, { rejectWithValue }) => {
     try {
       const res = await axios.put(
-        `http://localhost:8000/api/admin/orders/${orderId}`,
+        `${API_BASE_URL}/api/admin/orders/${orderId}`,
         { status },
         { withCredentials: true }
       );
@@ -104,7 +101,7 @@ export const deleteOrder = createAsyncThunk<
   { rejectValue: string }
 >("orders/deleteOrder", async (orderId, { rejectWithValue }) => {
   try {
-    await axios.delete(`http://localhost:8000/api/admin/orders/${orderId}`, {
+    await axios.delete(`${API_BASE_URL}/api/admin/orders/${orderId}`, {
       withCredentials: true,
     });
     return orderId;

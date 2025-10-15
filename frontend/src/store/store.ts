@@ -1,11 +1,11 @@
 import { configureStore } from "@reduxjs/toolkit";
-import authReducer from "./auth-slice";
-import addressReducer from "./shop/address-slice";
-import productReducer from "./shop/product-slice";
-import cartReducer from "./shop/cart-slice";
-import orderReducer from "./shop/order-slice";
-import couponReducer from "./shop/discount-slice";
-import paymentReducer from "./shop/payment-slice";
+import authReducer from "@/store/auth-slice";
+import addressReducer from "@/store/shop/address-slice";
+import productReducer from "@/store/shop/product-slice";
+import cartReducer from "@/store/shop/cart-slice";
+import orderReducer from "@/store/shop/order-slice";
+import couponReducer from "@/store/shop/discount-slice";
+import paymentReducer from "@/store/shop/payment-slice";
 
 const store = configureStore({
   reducer: {
