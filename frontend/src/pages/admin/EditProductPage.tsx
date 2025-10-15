@@ -10,14 +10,19 @@ const EditProductPage = () => {
   const navigate = useNavigate();
   const [product, setProduct] = useState<ProductFormData | null>(null);
   const dispatch = useAppDispatch();
-  const fetchProductDetail = async () => {
-    if (!id) return;
-    const data = await dispatch(fetchProductDetails(id));
-    setProduct(data.payload);
-  };
   useEffect(() => {
-    fetchProductDetail();
-  }, []);
+    const fetchProduct = async () => {
+      if (!id) return;
+      const result = await dispatch(fetchProductDetails(id));
+      if (result.meta.requestStatus === "fulfilled") {
+        setProduct(result.payload);
+      } else {
+        alert("Failed to fetch product details.");
+        navigate("/");
+      }
+    };
+    fetchProduct();
+  }, [id, dispatch, navigate]);
 
   const handleUpdate = (formData: FormData) => {
     dispatch(updateProduct({ id: id!, formData }));

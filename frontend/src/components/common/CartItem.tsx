@@ -12,7 +12,6 @@ interface Props {
 const CartItem: React.FC<Props> = ({ item, onRemove, onUpdateQuantity }) => {
   const [localQty, setLocalQty] = useState(item.quantity);
 
-  // Sync local quantity with Redux quantity only when it changes
   useEffect(() => {
     setLocalQty(item.quantity);
   }, [item.quantity]);
@@ -20,14 +19,14 @@ const CartItem: React.FC<Props> = ({ item, onRemove, onUpdateQuantity }) => {
   const handleIncrement = useCallback(() => {
     const newQty = localQty + 1;
     setLocalQty(newQty);
-    onUpdateQuantity(item._id, newQty); // Optimistic update
+    onUpdateQuantity(item._id, newQty);
   }, [localQty, item._id, onUpdateQuantity]);
 
   const handleDecrement = useCallback(() => {
     if (localQty <= 1) return;
     const newQty = localQty - 1;
     setLocalQty(newQty);
-    onUpdateQuantity(item._id, newQty); // Optimistic update
+    onUpdateQuantity(item._id, newQty);
   }, [localQty, item._id, onUpdateQuantity]);
 
   const handleInputChange = useCallback(

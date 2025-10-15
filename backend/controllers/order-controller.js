@@ -1,15 +1,36 @@
+import { z } from "zod";
 import Address from "../models/Address.js";
 import Cart from "../models/Cart.js";
 import Order from "../models/Order.js";
 
+const objectIdSchema = z
+  .string()
+  .regex(/^[0-9a-fA-F]{24}$/, "Invalid ObjectId");
+
+const createOrderSchema = z.object({
+  cartId: objectIdSchema,
+  addressId: objectIdSchema,
+  orderStatus: z.string().optional(),
+  payment: z.any().optional(),
+});
+
+const orderIdParamSchema = z.object({
+  orderId: objectIdSchema,
+});
+
 export const createOrder = async (req, res) => {
   try {
     const { id: userId } = req.user;
-    const { cartId, addressId, orderStatus = "Pending", payment } = req.body;
 
-    if (!cartId || !addressId) {
-      return res.status(400).json({ message: "Missing order details" });
+    const parsed = createOrderSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({
+        message: "Validation error",
+        errors: parsed.error.flatten().fieldErrors,
+      });
     }
+
+    const { cartId, addressId, orderStatus = "Pending", payment } = parsed.data;
 
     const cartDetails = await Cart.findOne({ _id: cartId, userId })
       .populate("items.productId", "name image price")
@@ -67,6 +88,7 @@ export const createOrder = async (req, res) => {
       .json({ message: "Server error while creating order" });
   }
 };
+
 export const getUserOrders = async (req, res) => {
   try {
     const { id: userId } = req.user;
@@ -85,9 +107,18 @@ export const getUserOrders = async (req, res) => {
       .json({ message: "Server error while fetching orders" });
   }
 };
+
 export const getOrderById = async (req, res) => {
   try {
-    const { orderId } = req.params;
+    const parsed = orderIdParamSchema.safeParse(req.params);
+    if (!parsed.success) {
+      return res.status(400).json({
+        message: "Invalid order ID",
+        errors: parsed.error.flatten().fieldErrors,
+      });
+    }
+
+    const { orderId } = parsed.data;
 
     const order = await Order.findById(orderId);
 

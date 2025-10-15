@@ -1,6 +1,8 @@
 import React, { useCallback, useState } from "react";
 import { Button } from "@/components/ui/button";
 import type { Product } from "@/lib/types";
+import { useAppSelector } from "@/data/hook";
+import { RootState } from "@/store/store";
 
 interface Props {
   product: Product;
@@ -9,6 +11,7 @@ interface Props {
 
 const ProductCard: React.FC<Props> = React.memo(({ product, onAddToCart }) => {
   const [added, setAdded] = useState(false);
+  const { user } = useAppSelector((state: RootState) => state.auth);
 
   const handleAdd = useCallback(() => {
     onAddToCart(product);
@@ -27,17 +30,19 @@ const ProductCard: React.FC<Props> = React.memo(({ product, onAddToCart }) => {
         <h3 className="font-semibold text-lg">{product.name}</h3>
         <p className="text-gray-600 text-sm">{product.category}</p>
         <p className="text-amber-600 font-bold mt-2">${product.price}</p>
-        <Button
-          className={`mt-4 w-full ${
-            added
-              ? "bg-green-500 hover:bg-green-500"
-              : "bg-amber-500 hover:bg-amber-600"
-          }`}
-          onClick={handleAdd}
-          disabled={added}
-        >
-          {added ? "Added!" : "Add to Cart"}
-        </Button>
+        {user?.role === "user" && (
+          <Button
+            className={`mt-4 w-full ${
+              added
+                ? "bg-green-500 hover:bg-green-500"
+                : "bg-amber-500 hover:bg-amber-600"
+            }`}
+            onClick={handleAdd}
+            disabled={added}
+          >
+            {added ? "Added!" : "Add to Cart"}
+          </Button>
+        )}
       </div>
     </div>
   );

@@ -5,7 +5,6 @@ import { useLocation, useNavigate } from "react-router-dom";
 
 const CheckoutSuccess = () => {
   const [paymentInfo, setPaymentInfo] = useState<PaymentInfo | null>(null);
-  console.log(paymentInfo);
   const [loading, setLoading] = useState(true);
   const location = useLocation();
   const navigate = useNavigate();

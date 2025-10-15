@@ -1,9 +1,34 @@
+import { z } from "zod";
 import Cart from "../models/Cart.js";
+
+const objectIdSchema = z
+  .string()
+  .regex(/^[0-9a-fA-F]{24}$/, "Invalid ObjectId");
+
+const createCartSchema = z.object({
+  productId: objectIdSchema,
+});
+
+const updateCartSchema = z.object({
+  quantity: z
+    .number({ invalid_type_error: "Quantity must be a number" })
+    .int("Quantity must be an integer")
+    .min(1, "Quantity must be at least 1"),
+});
 
 export const createCart = async (req, res) => {
   try {
     const { id } = req.user;
-    const { productId } = req.body;
+
+    const parsed = createCartSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({
+        message: "Validation error",
+        errors: parsed.error.flatten().fieldErrors,
+      });
+    }
+
+    const { productId } = parsed.data;
 
     let cart = await Cart.findOne({ userId: id });
 
@@ -43,13 +68,26 @@ export const getCartDetails = async (req, res) => {
     res.status(500).json({ message: "Failed to get cart" });
   }
 };
+
 export const updateCart = async (req, res) => {
   try {
     const { id } = req.user;
     const { itemId } = req.params;
-    const { quantity } = req.body;
 
-    console.log(itemId, quantity, id);
+    const idCheck = objectIdSchema.safeParse(itemId);
+    if (!idCheck.success) {
+      return res.status(400).json({ message: "Invalid item ID" });
+    }
+
+    const parsed = updateCartSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({
+        message: "Validation error",
+        errors: parsed.error.flatten().fieldErrors,
+      });
+    }
+
+    const { quantity } = parsed.data;
 
     const cart = await Cart.findOne({ userId: id });
 
@@ -75,11 +113,17 @@ export const updateCart = async (req, res) => {
     res.status(500).json({ message: "Failed to update cart item" });
   }
 };
+
 export const deleteCart = async (req, res) => {
   try {
     const { id } = req.user;
     const { itemId } = req.params;
-    console.log(itemId);
+
+    const idCheck = objectIdSchema.safeParse(itemId);
+    if (!idCheck.success) {
+      return res.status(400).json({ message: "Invalid item ID" });
+    }
+
     const cart = await Cart.findOne({ userId: id });
 
     if (!cart) {

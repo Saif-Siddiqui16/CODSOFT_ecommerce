@@ -6,6 +6,7 @@ import { fetchAllAddresses } from "@/store/shop/address-slice";
 import { fetchCartItems } from "@/store/shop/cart-slice";
 import type { RootState } from "@/store/store";
 import axios from "axios";
+import { validateCoupon } from "@/store/shop/discount-slice";
 
 export interface Address {
   _id: string;
@@ -19,6 +20,9 @@ const Checkout = () => {
   const dispatch = useAppDispatch();
 
   const { cartItems } = useAppSelector((state: RootState) => state.cart);
+  const { validatedCoupon, error: couponError } = useAppSelector(
+    (state) => state.coupon
+  );
 
   const [addresses, setAddresses] = useState<Address[]>([]);
   const [selectedAddressId, setSelectedAddressId] = useState<string>("");
@@ -51,12 +55,22 @@ const Checkout = () => {
     }
   }, [addresses]);
 
-  const totalAmount = useMemo(() => {
+  const subtotal = useMemo(() => {
     return cartItems.reduce(
       (acc, item) => acc + item.productId.price * item.quantity,
       0
     );
   }, [cartItems]);
+
+  const discountAmount = useMemo(() => {
+    return validatedCoupon
+      ? (validatedCoupon.discountPercent / 100) * subtotal
+      : 0;
+  }, [validatedCoupon, subtotal]);
+
+  const totalAmount = useMemo(() => {
+    return subtotal - discountAmount;
+  }, [subtotal, discountAmount]);
 
   const handleCheckout = async () => {
     if (!selectedAddressId) {
@@ -86,7 +100,12 @@ const Checkout = () => {
   };
 
   const handleCouponApply = async () => {
-    console.log("Coupon applied:", coupon);
+    if (!coupon.trim()) return;
+    try {
+      await dispatch(validateCoupon(coupon.trim())).unwrap();
+    } catch (err) {
+      console.error("Coupon validation failed:", err);
+    }
   };
 
   const addressList = useMemo(
@@ -152,10 +171,26 @@ const Checkout = () => {
               </div>
             ))}
             <hr />
-            <div className="flex justify-between font-bold">
+            <div className="flex justify-between">
+              <span>Subtotal</span>
+              <span>${subtotal.toFixed(2)}</span>
+            </div>
+
+            {validatedCoupon && (
+              <div className="flex justify-between text-green-600 font-medium">
+                <span>Discount ({validatedCoupon.code})</span>
+                <span>- ${discountAmount.toFixed(2)}</span>
+              </div>
+            )}
+
+            <div className="flex justify-between font-bold border-t pt-2 mt-2">
               <span>Total</span>
               <span>${totalAmount.toFixed(2)}</span>
             </div>
+
+            {couponError && (
+              <p className="text-red-600 text-sm mt-1">{couponError}</p>
+            )}
           </div>
         )}
       </div>

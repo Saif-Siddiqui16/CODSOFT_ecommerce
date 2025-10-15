@@ -43,7 +43,7 @@ export const fetchProducts = createAsyncThunk(
     const result = await axios.get("http://localhost:8000/api/shop/products", {
       withCredentials: true,
     });
-    return result.data; // return the data directly
+    return result.data;
   }
 );
 export const createProduct = createAsyncThunk(
@@ -63,7 +63,6 @@ export const createProduct = createAsyncThunk(
 export const updateProduct = createAsyncThunk(
   "/products/editProducts",
   async ({ id, formData }: { id: string; formData: FormData }) => {
-    console.log(formData);
     const result = await axios.put(
       `http://localhost:8000/api/admin/product/${id}`,
       formData,
@@ -112,7 +111,6 @@ const shoppingProductSlice = createSlice({
         state.productList = [];
       })
 
-      // Fetch product details
       .addCase(fetchProductDetails.pending, (state) => {
         state.isLoading = true;
       })
@@ -128,7 +126,6 @@ const shoppingProductSlice = createSlice({
         state.productDetails = null;
       })
 
-      // Create product
       .addCase(createProduct.pending, (state) => {
         state.isLoading = true;
       })
@@ -143,7 +140,6 @@ const shoppingProductSlice = createSlice({
         state.isLoading = false;
       })
 
-      // Update product
       .addCase(updateProduct.pending, (state) => {
         state.isLoading = true;
       })
@@ -161,7 +157,6 @@ const shoppingProductSlice = createSlice({
         state.isLoading = false;
       })
 
-      // Delete product
       .addCase(deleteProduct.pending, (state) => {
         state.isLoading = true;
       })

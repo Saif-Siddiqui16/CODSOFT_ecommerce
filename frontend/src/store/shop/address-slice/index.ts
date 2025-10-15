@@ -52,8 +52,8 @@ export interface AddressResponse {
 }
 
 export const editaAddress = createAsyncThunk<
-  AddressResponse, // Return type
-  EditAddressPayload // argument type
+  AddressResponse,
+  EditAddressPayload
 >("addresses/editAddress", async ({ addressId, formData }) => {
   const response = await axios.put<AddressResponse>(
     `http://localhost:8000/api/shop/address/${addressId}`,

@@ -5,6 +5,7 @@ import { fetchOrderById } from "@/store/shop/order-slice";
 
 import { Button } from "@/components/ui/button";
 import type { RootState } from "@/store/store";
+import { fetchPaymentStatus } from "@/store/shop/payment-slice";
 
 const OrderDetailsPage: React.FC = () => {
   const { orderId } = useParams<{ orderId: string }>();
@@ -12,9 +13,13 @@ const OrderDetailsPage: React.FC = () => {
   const { orderDetails, isLoading } = useAppSelector(
     (state: RootState) => state.orders
   );
+  const { status } = useAppSelector((state: RootState) => state.payment);
 
   useEffect(() => {
-    if (orderId) dispatch(fetchOrderById(orderId));
+    if (orderId) {
+      dispatch(fetchOrderById(orderId));
+      dispatch(fetchPaymentStatus(orderId));
+    }
   }, [dispatch, orderId]);
 
   if (isLoading || !orderDetails) {
@@ -30,7 +35,10 @@ const OrderDetailsPage: React.FC = () => {
           <strong>Order ID:</strong> {orderDetails._id}
         </p>
         <p>
-          <strong>Status:</strong> {orderDetails.orderStatus}
+          <strong>Order Status:</strong> {orderDetails.orderStatus}
+        </p>
+        <p>
+          <strong>Payment Status:</strong> {status}
         </p>
         <p>
           <strong>Total Amount:</strong> ${orderDetails.totalAmount}
@@ -59,14 +67,7 @@ const OrderDetailsPage: React.FC = () => {
         </div>
       </section>
 
-      <section className="bg-white p-6 rounded shadow">
-        <h2 className="text-xl font-semibold mb-3">Shipping Info</h2>
-        <p>{orderDetails.addressInfo.address}</p>
-        <p>
-          {orderDetails.addressInfo.city} - {orderDetails.addressInfo.pincode}
-        </p>
-        <p>Phone: {orderDetails.addressInfo.phone}</p>
-      </section>
+      
 
       <Button onClick={() => window.history.back()}>Back</Button>
     </div>

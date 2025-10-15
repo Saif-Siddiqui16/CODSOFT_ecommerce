@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
-import { useAppDispatch } from "@/data/hook";
-import { loginUser } from "@/store/auth-slice";
-import { useState, type ChangeEvent, type FormEvent } from "react";
+import { useAppDispatch, useAppSelector } from "@/data/hook";
+import { loginUser, clearErrors } from "@/store/auth-slice";
+import { useState, type ChangeEvent, type FormEvent, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
 export interface LoginFormData {
@@ -12,10 +12,16 @@ export interface LoginFormData {
 const Login = () => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
+  const { isLoading, loginError } = useAppSelector((state) => state.auth);
+
   const [form, setForm] = useState<LoginFormData>({
     email: "",
     password: "",
   });
+
+  useEffect(() => {
+    dispatch(clearErrors());
+  }, [dispatch]);
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>): void => {
     const { name, value } = e.target;
@@ -23,14 +29,15 @@ const Login = () => {
       ...prevForm,
       [name]: value,
     }));
+
+    if (loginError) dispatch(clearErrors());
   };
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const data = await dispatch(loginUser(form));
 
-    if (data.payload.success) {
-      console.log("data.payload", data.payload);
+    const data = await dispatch(loginUser(form));
+    if (loginUser.fulfilled.match(data) && data.payload.success) {
       navigate("/", { replace: true });
     }
   };
@@ -42,7 +49,7 @@ const Login = () => {
           Login
         </h1>
 
-        <form onSubmit={handleSubmit} className="space-y-5">
+        <form onSubmit={handleSubmit} className="space-y-5" noValidate>
           <div className="flex flex-col">
             <label
               htmlFor="email"
@@ -56,9 +63,19 @@ const Login = () => {
               type="email"
               value={form.email}
               onChange={handleChange}
+              autoComplete="off"
               required
-              className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-400 transition"
+              className={`px-3 py-2 border rounded-md focus:outline-none focus:ring-2 transition ${
+                loginError?.errors?.email
+                  ? "border-red-500 focus:ring-red-500"
+                  : "border-gray-300 focus:ring-amber-400"
+              }`}
             />
+            {loginError?.errors?.email && (
+              <p className="text-red-600 text-sm mt-1">
+                {loginError.errors.email.join(", ")}
+              </p>
+            )}
           </div>
 
           <div className="flex flex-col">
@@ -75,15 +92,31 @@ const Login = () => {
               value={form.password}
               onChange={handleChange}
               required
-              className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-400 transition"
+              className={`px-3 py-2 border rounded-md focus:outline-none focus:ring-2 transition ${
+                loginError?.errors?.password
+                  ? "border-red-500 focus:ring-red-500"
+                  : "border-gray-300 focus:ring-amber-400"
+              }`}
             />
+            {loginError?.errors?.password && (
+              <p className="text-red-600 text-sm mt-1">
+                {loginError.errors.password.join(", ")}
+              </p>
+            )}
           </div>
+
+          {loginError?.message && (
+            <p className="text-red-600 text-center text-sm mb-2">
+              {loginError.message}
+            </p>
+          )}
 
           <Button
             type="submit"
             className="w-full bg-amber-500 hover:bg-amber-600 transition"
+            disabled={isLoading}
           >
-            Login
+            {isLoading ? "Logging in..." : "Login"}
           </Button>
 
           <div className="text-center text-sm text-gray-600">

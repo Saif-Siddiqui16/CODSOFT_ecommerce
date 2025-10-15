@@ -18,15 +18,13 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
       try {
         await dispatch(checkAuth()).unwrap();
       } catch (err) {
-        // If token missing or invalid, log out immediately
         dispatch(logoutUser());
       } finally {
         setAuthChecked(true);
       }
     };
     verifyAuth();
-  }, [dispatch, location.pathname]); // run on every route change
-
+  }, [dispatch, location.pathname]);
   if (!authChecked || isLoading) {
     return <div className="text-center mt-10">Checking authentication...</div>;
   }

@@ -1,8 +1,8 @@
 import { Button } from "@/components/ui/button";
 import { useNavigate, Link } from "react-router-dom";
-import { useState, type ChangeEvent, type FormEvent } from "react";
-import { useAppDispatch } from "@/data/hook";
-import { registerUser } from "@/store/auth-slice";
+import { useState, type ChangeEvent, type FormEvent, useEffect } from "react";
+import { useAppDispatch, useAppSelector } from "@/data/hook";
+import { registerUser, clearErrors } from "@/store/auth-slice";
 
 interface RegisterField {
   id: number;
@@ -26,11 +26,17 @@ const registerData: RegisterField[] = [
 const Register = () => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
+  const { isLoading, registerError } = useAppSelector((state) => state.auth);
+
   const [form, setForm] = useState<RegisterFormData>({
     username: "",
     email: "",
     password: "",
   });
+
+  useEffect(() => {
+    dispatch(clearErrors());
+  }, [dispatch]);
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>): void => {
     const { name, value } = e.target;
@@ -38,12 +44,14 @@ const Register = () => {
       ...prevForm,
       [name]: value,
     }));
+
+    if (registerError) dispatch(clearErrors());
   };
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const data = await dispatch(registerUser(form));
-    if (data.payload.success) {
+    if (registerUser.fulfilled.match(data) && data.payload.success) {
       navigate("/login", { replace: true });
     }
   };
@@ -55,7 +63,7 @@ const Register = () => {
           Register
         </h1>
 
-        <form onSubmit={handleSubmit} className="space-y-5">
+        <form onSubmit={handleSubmit} className="space-y-5" noValidate>
           {registerData.map((item) => (
             <div key={item.id} className="flex flex-col">
               <label
@@ -70,17 +78,34 @@ const Register = () => {
                 type={item.type}
                 value={form[item.key]}
                 onChange={handleChange}
+                autoComplete="off"
                 required
-                className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-400 transition"
+                className={`px-3 py-2 border rounded-md focus:outline-none focus:ring-2 transition ${
+                  registerError?.errors?.[item.key]
+                    ? "border-red-500 focus:ring-red-500"
+                    : "border-gray-300 focus:ring-amber-400"
+                }`}
               />
+              {registerError?.errors?.[item.key] && (
+                <p className="text-red-600 text-sm mt-1">
+                  {registerError.errors[item.key]?.join(", ")}
+                </p>
+              )}
             </div>
           ))}
+
+          {registerError?.message && (
+            <p className="text-red-600 text-center text-sm mb-2">
+              {registerError.message}
+            </p>
+          )}
 
           <Button
             type="submit"
             className="w-full bg-amber-500 hover:bg-amber-600 transition"
+            disabled={isLoading}
           >
-            Register
+            {isLoading ? "Registering..." : "Register"}
           </Button>
 
           <div className="text-center text-sm text-gray-600">

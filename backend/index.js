@@ -10,14 +10,8 @@ import shopAddressRouter from "./routes/address-routes.js";
 import shopOrderRouter from "./routes/order-routes.js";
 import adminOrderRouter from "./routes/admin-order-routes.js";
 import paymentRouter from "./routes/payment-routes.js";
+import couponRouter from "./routes/coupon-routes.js";
 import cors from "cors";
-/*
-import authRouter from "./routes/auth-route.js";
-import shopProductsRouter from "./routes/product-route.js";
-
-
-import shopSearchRouter from "./routes/search-route.js";
-*/
 
 dotenv.config();
 const app = express();
@@ -39,11 +33,8 @@ app.use("/api/shop/address", shopAddressRouter);
 app.use("/api/shop/order", shopOrderRouter);
 app.use("/api/admin/orders", adminOrderRouter);
 app.use("/api/user/payment", paymentRouter);
+app.use("/api/coupons", couponRouter);
 
-/*
-
-app.use("/api/shop/search", shopSearchRouter);
-*/
 app.listen(PORT, async () => {
   await db();
   console.log("server is running");

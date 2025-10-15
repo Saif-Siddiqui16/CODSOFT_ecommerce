@@ -17,6 +17,7 @@ const Cart = () => {
     (state: RootState) => state.cart
   );
 
+  const { user } = useAppSelector((state: RootState) => state.auth);
   useEffect(() => {
     dispatch(fetchCartItems());
   }, [dispatch]);
@@ -69,9 +70,11 @@ const Cart = () => {
         </div>
       )}
       <div className="flex items-center justify-center">
-        <Button className="cursor-pointer" onClick={handleCheckout}>
-          CheckOut
-        </Button>
+        {user?.role === "user" && (
+          <Button className="cursor-pointer" onClick={handleCheckout}>
+            CheckOut
+          </Button>
+        )}
       </div>
     </div>
   );

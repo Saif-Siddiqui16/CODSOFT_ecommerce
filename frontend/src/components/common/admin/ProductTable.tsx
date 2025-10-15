@@ -18,11 +18,7 @@ interface ProductTableProps {
   onDelete: (id: string) => void;
 }
 
-const ProductTable: React.FC<ProductTableProps> = ({
-  products,
-  onEdit,
-  onDelete,
-}) => {
+const ProductTable: React.FC<ProductTableProps> = ({ products, onEdit }) => {
   const dispatch = useAppDispatch();
   if (products.length === 0) return <p>No products found.</p>;
 

@@ -38,16 +38,21 @@ const Profile: React.FC = () => {
     phone: "",
   });
 
-  // Fetch addresses
   const fetchAddress = useCallback(async () => {
     const data = await dispatch(fetchAllAddresses());
-    if (data.payload) setAddresses(data.payload);
+    if (data.payload && Array.isArray(data.payload)) {
+      setAddresses(data.payload);
+    }
   }, [dispatch]);
 
-  // Fetch orders
   const fetchOrders = useCallback(async () => {
     const result = await dispatch(fetchAllOrders());
-    if (result.payload) setOrders(result.payload);
+    if (result.payload && Array.isArray(result.payload)) {
+      setOrders(result.payload);
+    } else {
+      console.warn("Invalid orders payload:", result.payload);
+      setOrders([]);
+    }
   }, [dispatch]);
 
   useEffect(() => {
@@ -61,8 +66,7 @@ const Profile: React.FC = () => {
   };
 
   const handleEditAddress = (id: string) => {
-    // Navigate to edit address page
-    // navigate(`/address/${id}`);
+    navigate(`/address/${id}`);
   };
 
   const handleCreateAddress = async () => {
@@ -72,16 +76,13 @@ const Profile: React.FC = () => {
     fetchAddress();
   };
 
-  // Pagination
-  const totalOrderPages = Math.ceil(orders.length / ITEMS_PER_PAGE);
-  const paginatedOrders = orders.slice(
-    (orderPage - 1) * ITEMS_PER_PAGE,
-    orderPage * ITEMS_PER_PAGE
-  );
+  const totalOrderPages = Math.ceil((orders?.length || 0) / ITEMS_PER_PAGE);
+  const paginatedOrders = Array.isArray(orders)
+    ? orders.slice((orderPage - 1) * ITEMS_PER_PAGE, orderPage * ITEMS_PER_PAGE)
+    : [];
 
   return (
     <div className="container mx-auto p-6 space-y-8">
-      {/* User Info */}
       <section className="bg-white p-6 rounded shadow">
         <h1 className="text-2xl font-bold mb-4">Profile</h1>
         <p>
@@ -92,7 +93,6 @@ const Profile: React.FC = () => {
         </p>
       </section>
 
-      {/* Addresses */}
       <section className="bg-white p-6 rounded shadow">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-semibold">Addresses</h2>
@@ -158,68 +158,81 @@ const Profile: React.FC = () => {
           </Dialog>
         </div>
         <div className="space-y-3">
-          {addresses.map((addr) => (
-            <div
-              key={addr._id}
-              className="border p-3 rounded flex justify-between items-center"
-            >
-              <div>
-                <p>
-                  {addr.address}, {addr.city}, {addr.pincode}
-                </p>
-                <p>Phone: {addr.phone}</p>
+          {Array.isArray(addresses) && addresses.length > 0 ? (
+            addresses.map((addr) => (
+              <div
+                key={addr._id}
+                className="border p-3 rounded flex justify-between items-center"
+              >
+                <div>
+                  <p>
+                    {addr.address}, {addr.city}, {addr.pincode}
+                  </p>
+                  <p>Phone: {addr.phone}</p>
+                </div>
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    onClick={() => handleEditAddress(addr._id)}
+                  >
+                    Edit
+                  </Button>
+                  <Button
+                    variant="destructive"
+                    onClick={() => handleDeleteAddress(addr._id)}
+                  >
+                    Delete
+                  </Button>
+                </div>
               </div>
-              <div className="flex gap-2">
-                <Button
-                  variant="outline"
-                  onClick={() => handleEditAddress(addr._id)}
-                >
-                  Edit
-                </Button>
-                <Button
-                  variant="destructive"
-                  onClick={() => handleDeleteAddress(addr._id)}
-                >
-                  Delete
-                </Button>
-              </div>
-            </div>
-          ))}
+            ))
+          ) : (
+            <p>No addresses found.</p>
+          )}
         </div>
       </section>
 
-      {/* Orders */}
       <section className="bg-white p-6 rounded shadow">
         <h2 className="text-xl font-semibold mb-4">Orders</h2>
         <div className="space-y-3">
-          {paginatedOrders.length === 0 && <p>No orders found.</p>}
-          {paginatedOrders.map((order) => (
-            <div
-              key={order._id}
-              className="border p-3 rounded flex justify-between items-center"
-            >
-              <div>
-                <p>Order ID: {order._id}</p>
-                <p>Total Amount: ${order.totalAmount}</p>
-                <p>Status: {order.orderStatus}</p>
-                <p>Date: {new Date(order.orderDate).toLocaleDateString()}</p>
-              </div>
-              <Button
-                variant="outline"
-                onClick={() => navigate(`/order/${order._id}`)}
+          {Array.isArray(paginatedOrders) && paginatedOrders.length === 0 && (
+            <p>No orders found.</p>
+          )}
+
+          {Array.isArray(paginatedOrders) &&
+            paginatedOrders.map((order) => (
+              <div
+                key={order._id}
+                className="border p-3 rounded flex justify-between items-center"
               >
-                View Details
-              </Button>
-            </div>
-          ))}
+                <div>
+                  <p>Order ID: {order._id}</p>
+                  <p>Total Amount: ${order.totalAmount}</p>
+                  <p>Status: {order.orderStatus}</p>
+                  <p>
+                    Date:{" "}
+                    {order.orderDate
+                      ? new Date(order.orderDate).toLocaleDateString()
+                      : "N/A"}
+                  </p>
+                </div>
+                <Button
+                  variant="outline"
+                  onClick={() => navigate(`/order/${order._id}`)}
+                >
+                  View Details
+                </Button>
+              </div>
+            ))}
         </div>
 
-        {/* Pagination */}
-        <Pagination
-          currentPage={orderPage}
-          totalPages={totalOrderPages}
-          onPageChange={setOrderPage}
-        />
+        {totalOrderPages > 1 && (
+          <Pagination
+            currentPage={orderPage}
+            totalPages={totalOrderPages}
+            onPageChange={setOrderPage}
+          />
+        )}
       </section>
     </div>
   );

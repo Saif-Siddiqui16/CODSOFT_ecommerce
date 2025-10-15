@@ -18,6 +18,8 @@ import AdminHomePage from "./pages/admin/AdminHomePage";
 import CreateProductPage from "./pages/admin/CreateProductPage";
 import EditProductPage from "./pages/admin/EditProductPage";
 import OrderDetailsPage from "./pages/shopping-view/OrderDetailsPage";
+import Orders from "./pages/shopping-view/Orders";
+import CouponPage from "./pages/admin/CouponPage";
 
 const App: React.FC = () => {
   return (
@@ -43,6 +45,14 @@ const App: React.FC = () => {
             element={
               <ProtectedRoute>
                 <OrderDetailsPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/orders"
+            element={
+              <ProtectedRoute>
+                <Orders />
               </ProtectedRoute>
             }
           />
@@ -103,6 +113,14 @@ const App: React.FC = () => {
             element={
               <ProtectedRoute>
                 <AdminHomePage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/coupons"
+            element={
+              <ProtectedRoute>
+                <CouponPage />
               </ProtectedRoute>
             }
           />

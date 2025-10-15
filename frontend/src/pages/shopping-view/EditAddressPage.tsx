@@ -62,7 +62,7 @@ const EditAddressPage: React.FC = () => {
 
     try {
       await dispatch(editaAddress({ addressId, formData: form })).unwrap();
-      navigate("/account/addresses");
+      navigate("/profile");
     } catch (err) {
       console.error("Failed to update address:", err);
     }

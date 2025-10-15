@@ -1,4 +1,13 @@
 import Order from "../models/Order.js";
+import { z } from "zod";
+
+const objectIdSchema = z
+  .string()
+  .regex(/^[0-9a-fA-F]{24}$/, "Invalid ObjectId");
+
+const updateOrderStatusSchema = z.object({
+  status: z.string().min(1, "Order status is required."),
+});
 
 export const getAllOrdersForAdmin = async (req, res) => {
   try {
@@ -14,21 +23,28 @@ export const getAllOrdersForAdmin = async (req, res) => {
 };
 
 export const updateOrderStatus = async (req, res) => {
+  const idValidation = objectIdSchema.safeParse(req.params.orderId);
+  if (!idValidation.success) {
+    return res.status(400).json({ message: "Invalid order ID" });
+  }
+
+  const statusValidation = updateOrderStatusSchema.safeParse(req.body);
+  console.log(statusValidation);
+  if (!statusValidation.success) {
+    return res.status(400).json({
+      message: "Validation error",
+      errors: statusValidation.error.flatten().fieldErrors,
+    });
+  }
+
   try {
-    const { orderId } = req.params;
-    const { status } = req.body;
-
-    if (!status) {
-      return res.status(400).json({ message: "Order status is required." });
-    }
-
-    const order = await Order.findById(orderId);
+    const order = await Order.findById(idValidation.data);
 
     if (!order) {
       return res.status(404).json({ message: "Order not found." });
     }
 
-    order.orderStatus = status;
+    order.orderStatus = statusValidation.data.status;
     order.orderUpdateDate = new Date();
 
     await order.save();
@@ -41,10 +57,13 @@ export const updateOrderStatus = async (req, res) => {
 };
 
 export const deleteOrder = async (req, res) => {
-  try {
-    const { orderId } = req.params;
+  const idValidation = objectIdSchema.safeParse(req.params.orderId);
+  if (!idValidation.success) {
+    return res.status(400).json({ message: "Invalid order ID" });
+  }
 
-    const order = await Order.findByIdAndDelete(orderId);
+  try {
+    const order = await Order.findByIdAndDelete(idValidation.data);
 
     if (!order) {
       return res.status(404).json({ message: "Order not found." });

@@ -23,24 +23,33 @@ const Header = () => {
 
   return (
     <header className="h-[100px] w-full bg-amber-300 flex items-center px-4 md:px-10 shadow-md">
-      {/* Desktop Header */}
       <div className="hidden md:flex w-full items-center justify-between">
         <h1 className="text-2xl font-bold tracking-wide">Ecommerce App</h1>
-        <nav className="flex gap-6 font-medium text-gray-800">
-          <Link to="/" className="hover:underline">
-            Home
-          </Link>
-          <Link to="/cart" className="hover:underline">
-            Cart
-          </Link>
-          <Link to="/profile" className="hover:underline">
-            Profile
-          </Link>
-          {isAuthenticated && <Button onClick={handleLogout}>Logout</Button>}
-          {user?.role === "admin" && (
-            <Button onClick={handleAdminPage}>Admin Home</Button>
-          )}
-        </nav>
+        {user && (
+          <nav className="flex gap-6 font-medium text-gray-800">
+            <Link to="/" className="hover:underline">
+              Home
+            </Link>
+
+            <Link to="/profile" className="hover:underline">
+              Profile
+            </Link>
+            {user.role === "user" && (
+              <>
+                <Link to="/cart" className="hover:underline">
+                  Cart
+                </Link>
+                <Link to="/orders" className="hover:underline">
+                  Orders
+                </Link>
+              </>
+            )}
+            {isAuthenticated && <Button onClick={handleLogout}>Logout</Button>}
+            {user?.role === "admin" && (
+              <Button onClick={handleAdminPage}>Admin Home</Button>
+            )}
+          </nav>
+        )}
       </div>
 
       {/* Mobile Header */}
@@ -54,16 +63,27 @@ const Header = () => {
             <SheetHeader>
               <SheetTitle className="text-xl">Navigation</SheetTitle>
               <div className="flex flex-col items-start mt-4 gap-4">
-                <Link to="/" className="hover:underline">
-                  Home
-                </Link>
-                <Link to="/cart" className="hover:underline">
-                  Cart
-                </Link>
-                <Link to="/profile" className="hover:underline">
-                  Profile
-                </Link>
+                {user && (
+                  <>
+                    <Link to="/" className="hover:underline">
+                      Home
+                    </Link>
 
+                    <Link to="/profile" className="hover:underline">
+                      Profile
+                    </Link>
+                    {user.role === "user" && (
+                      <>
+                        <Link to="/cart" className="hover:underline">
+                          Cart
+                        </Link>
+                        <Link to="/orders" className="hover:underline">
+                          Orders
+                        </Link>
+                      </>
+                    )}
+                  </>
+                )}
                 {isAuthenticated && (
                   <Button onClick={handleLogout} className="w-full">
                     Logout
@@ -71,9 +91,11 @@ const Header = () => {
                 )}
 
                 {user?.role === "admin" && (
-                  <Button onClick={handleAdminPage} className="w-full">
-                    Admin Home
-                  </Button>
+                  <>
+                    <Button onClick={handleAdminPage} className="w-full">
+                      Admin Home
+                    </Button>
+                  </>
                 )}
               </div>
             </SheetHeader>

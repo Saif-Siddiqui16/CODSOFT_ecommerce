@@ -5,7 +5,7 @@ import type { Product } from "@/lib/types";
 interface AddToCartArgs {
   productId: string;
 }
-interface DeletItem {
+interface DeleteItem {
   itemId: string;
 }
 interface UpdateCart {
@@ -30,62 +30,81 @@ interface CartResponse {
 export interface CartState {
   cartItems: CartItem[];
   isLoading: boolean;
+  error: string | null;
 }
+
 const initialState: CartState = {
   cartItems: [],
   isLoading: false,
+  error: null,
 };
+
 export const addToCart = createAsyncThunk<CartResponse, AddToCartArgs>(
   "cart/addToCart",
-  async ({ productId }) => {
-    const response = await axios.post(
-      "http://localhost:8000/api/shop/cart",
-      {
-        productId,
-      },
-      { withCredentials: true }
-    );
-    console.log(response.data);
-
-    return response.data;
+  async ({ productId }, { rejectWithValue }) => {
+    try {
+      const response = await axios.post(
+        "http://localhost:8000/api/shop/cart",
+        { productId },
+        { withCredentials: true }
+      );
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to add item to cart"
+      );
+    }
   }
 );
 
-export const fetchCartItems = createAsyncThunk(
+export const fetchCartItems = createAsyncThunk<CartResponse>(
   "cart/fetchCartItems",
-  async () => {
-    const response = await axios.get(`http://localhost:8000/api/shop/cart`, {
-      withCredentials: true,
-    });
-
-    return response.data;
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await axios.get(`http://localhost:8000/api/shop/cart`, {
+        withCredentials: true,
+      });
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to fetch cart items"
+      );
+    }
   }
 );
 
-export const deleteCartItem = createAsyncThunk<CartResponse, DeletItem>(
+export const deleteCartItem = createAsyncThunk<CartResponse, DeleteItem>(
   "cart/deleteCartItem",
-  async ({ itemId }) => {
-    const response = await axios.delete(
-      `http://localhost:8000/api/shop/cart/${itemId}`,
-      {
-        withCredentials: true,
-      }
-    );
-
-    return response.data;
+  async ({ itemId }, { rejectWithValue }) => {
+    try {
+      const response = await axios.delete(
+        `http://localhost:8000/api/shop/cart/${itemId}`,
+        { withCredentials: true }
+      );
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to delete cart item"
+      );
+    }
   }
 );
 
 export const updateCartQuantity = createAsyncThunk<CartResponse, UpdateCart>(
   "cart/updateCartQuantity",
-  async ({ itemId, quantity }) => {
-    const response = await axios.put(
-      `http://localhost:8000/api/shop/cart/${itemId}`,
-      { quantity },
-      { withCredentials: true }
-    );
-
-    return response.data; // this returns the full cart
+  async ({ itemId, quantity }, { rejectWithValue }) => {
+    try {
+      const response = await axios.put(
+        `http://localhost:8000/api/shop/cart/${itemId}`,
+        { quantity },
+        { withCredentials: true }
+      );
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to update cart quantity"
+      );
+    }
   }
 );
 
@@ -97,41 +116,52 @@ const shoppingCartSlice = createSlice({
     builder
       .addCase(addToCart.pending, (state) => {
         state.isLoading = true;
+        state.error = null;
       })
       .addCase(addToCart.fulfilled, (state, action) => {
         state.isLoading = false;
         state.cartItems = action.payload.items || [];
       })
-      .addCase(addToCart.rejected, (state) => {
+      .addCase(addToCart.rejected, (state, action) => {
         state.isLoading = false;
-        state.cartItems = [];
+        state.error =
+          (action.payload as string) || "Failed to add item to cart";
       })
+
       .addCase(fetchCartItems.pending, (state) => {
         state.isLoading = true;
+        state.error = null;
       })
       .addCase(fetchCartItems.fulfilled, (state, action) => {
         state.isLoading = false;
         state.cartItems = action.payload.items || [];
       })
-      .addCase(fetchCartItems.rejected, (state) => {
+      .addCase(fetchCartItems.rejected, (state, action) => {
         state.isLoading = false;
-        state.cartItems = [];
+        state.error =
+          (action.payload as string) || "Failed to fetch cart items";
       })
+
       .addCase(updateCartQuantity.pending, (state) => {
         state.isLoading = true;
+        state.error = null;
       })
       .addCase(updateCartQuantity.fulfilled, (state, action) => {
         state.isLoading = false;
-        const { itemId, quantity } = action.meta.arg; // optimistic update
+        const { itemId, quantity } = action.meta.arg;
         const item = state.cartItems.find((i) => i._id === itemId);
-        if (item) item.quantity = quantity;
+        if (item) {
+          item.quantity = quantity;
+        }
       })
-      .addCase(updateCartQuantity.rejected, (state) => {
+      .addCase(updateCartQuantity.rejected, (state, action) => {
         state.isLoading = false;
-        state.cartItems = [];
+        state.error = (action.payload as string) || "Failed to update quantity";
       })
+
       .addCase(deleteCartItem.pending, (state) => {
         state.isLoading = true;
+        state.error = null;
       })
       .addCase(deleteCartItem.fulfilled, (state, action) => {
         state.isLoading = false;
@@ -140,9 +170,10 @@ const shoppingCartSlice = createSlice({
           (item) => item._id !== deletedId
         );
       })
-      .addCase(deleteCartItem.rejected, (state) => {
+      .addCase(deleteCartItem.rejected, (state, action) => {
         state.isLoading = false;
-        state.cartItems = [];
+        state.error =
+          (action.payload as string) || "Failed to delete cart item";
       });
   },
 });

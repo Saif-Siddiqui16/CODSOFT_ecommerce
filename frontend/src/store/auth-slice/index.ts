@@ -1,11 +1,11 @@
-import type { LoginFormData } from "@/pages/auth/Login";
-import type { RegisterFormData } from "@/pages/auth/Register";
 import {
   createAsyncThunk,
   createSlice,
   type PayloadAction,
 } from "@reduxjs/toolkit";
 import axios from "axios";
+import type { RegisterFormData } from "@/pages/auth/Register";
+import type { LoginFormData } from "@/pages/auth/Login";
 
 export interface User {
   id: string;
@@ -14,69 +14,116 @@ export interface User {
   role: "user" | "admin";
 }
 
+interface BackendError {
+  message: string;
+  errors?: Record<string, string[]>;
+}
+
 interface AuthState {
   isAuthenticated: boolean;
   user: User | null;
   isLoading: boolean;
+  registerError: BackendError | null;
+  loginError: BackendError | null;
 }
 
 const initialState: AuthState = {
   isAuthenticated: false,
   user: null,
-  isLoading: false, // changed from true
+  isLoading: false,
+  registerError: null,
+  loginError: null,
 };
 
-// Async thunks
-export const registerUser = createAsyncThunk<any, RegisterFormData>(
-  "auth/register",
-  async (formData) => {
+export const registerUser = createAsyncThunk<
+  { message: string; success: boolean },
+  RegisterFormData,
+  { rejectValue: BackendError }
+>("auth/register", async (formData, { rejectWithValue }) => {
+  try {
     const response = await axios.post(
       "http://localhost:8000/api/auth/register",
       formData,
       { withCredentials: true }
     );
     return response.data;
+  } catch (error: any) {
+    if (axios.isAxiosError(error) && error.response?.data) {
+      return rejectWithValue(error.response.data);
+    }
+    return rejectWithValue({ message: "Network error" });
   }
-);
+});
 
 export const loginUser = createAsyncThunk<
   { success: boolean; user: User },
-  LoginFormData
->("auth/login", async (formData) => {
-  const response = await axios.post(
-    "http://localhost:8000/api/auth/login",
-    formData,
-    { withCredentials: true }
-  );
-  return response.data;
+  LoginFormData,
+  { rejectValue: BackendError }
+>("auth/login", async (formData, { rejectWithValue }) => {
+  try {
+    const response = await axios.post(
+      "http://localhost:8000/api/auth/login",
+      formData,
+      { withCredentials: true }
+    );
+    return response.data;
+  } catch (error: any) {
+    if (axios.isAxiosError(error) && error.response?.data) {
+      return rejectWithValue(error.response.data);
+    }
+    return rejectWithValue({ message: "Network error" });
+  }
 });
 
-export const logoutUser = createAsyncThunk("auth/logout", async () => {
-  const response = await axios.post(
-    "http://localhost:8000/api/auth/logout",
-    {},
-    { withCredentials: true }
-  );
-  return response.data;
-});
+export const logoutUser = createAsyncThunk(
+  "auth/logout",
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await axios.post(
+        "http://localhost:8000/api/auth/logout",
+        {},
+        { withCredentials: true }
+      );
+      return response.data;
+    } catch (error: any) {
+      if (axios.isAxiosError(error) && error.response?.data) {
+        return rejectWithValue(error.response.data);
+      }
+      return rejectWithValue({ message: "Network error" });
+    }
+  }
+);
 
 export const checkAuth = createAsyncThunk<
   { success: boolean; user: User },
-  void
->("auth/checkAuth", async () => {
-  const response = await axios.get("http://localhost:8000/api/auth/me", {
-    withCredentials: true,
-    headers: {
-      "Cache-Control": "no-store, no-cache, must-revalidate, proxy-revalidate",
-    },
-  });
-  return response.data;
+  void,
+  { rejectValue: BackendError }
+>("auth/checkAuth", async (_, { rejectWithValue }) => {
+  try {
+    const response = await axios.get("http://localhost:8000/api/auth/me", {
+      withCredentials: true,
+      headers: {
+        "Cache-Control":
+          "no-store, no-cache, must-revalidate, proxy-revalidate",
+      },
+    });
+    return response.data;
+  } catch (error: any) {
+    if (axios.isAxiosError(error) && error.response?.data) {
+      return rejectWithValue(error.response.data);
+    }
+    return rejectWithValue({ message: "Network error" });
+  }
 });
 
 const authSlice = createSlice({
   name: "auth",
   initialState,
   reducers: {
+    clearErrors: (state) => {
+      state.registerError = null;
+      state.loginError = null;
+    },
     setUser: (state, action: PayloadAction<User | null>) => {
       state.user = action.payload;
       state.isAuthenticated = !!action.payload;
@@ -84,40 +131,55 @@ const authSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      // Register
       .addCase(registerUser.pending, (state) => {
         state.isLoading = true;
+        state.registerError = null;
       })
       .addCase(registerUser.fulfilled, (state) => {
         state.isLoading = false;
       })
-      .addCase(registerUser.rejected, (state) => {
+      .addCase(registerUser.rejected, (state, action) => {
         state.isLoading = false;
+        state.registerError = action.payload || {
+          message: "Registration failed",
+        };
       })
 
-      // Login
       .addCase(loginUser.pending, (state) => {
         state.isLoading = true;
+        state.loginError = null;
       })
       .addCase(loginUser.fulfilled, (state, action) => {
         state.isLoading = false;
-        state.user = action.payload.success ? action.payload.user : null;
-        state.isAuthenticated = !!action.payload.success;
+        if (action.payload.success) {
+          state.user = action.payload.user;
+          state.isAuthenticated = true;
+          state.loginError = null;
+        } else {
+          state.user = null;
+          state.isAuthenticated = false;
+          state.loginError = { message: "Login failed" };
+        }
       })
-      .addCase(loginUser.rejected, (state) => {
+      .addCase(loginUser.rejected, (state, action) => {
         state.isLoading = false;
         state.user = null;
         state.isAuthenticated = false;
+        state.loginError = action.payload || { message: "Login failed" };
       })
 
-      // Check Auth
       .addCase(checkAuth.pending, (state) => {
         state.isLoading = true;
       })
       .addCase(checkAuth.fulfilled, (state, action) => {
         state.isLoading = false;
-        state.user = action.payload.success ? action.payload.user : null;
-        state.isAuthenticated = !!action.payload.success;
+        if (action.payload.success) {
+          state.user = action.payload.user;
+          state.isAuthenticated = true;
+        } else {
+          state.user = null;
+          state.isAuthenticated = false;
+        }
       })
       .addCase(checkAuth.rejected, (state) => {
         state.isLoading = false;
@@ -125,7 +187,6 @@ const authSlice = createSlice({
         state.isAuthenticated = false;
       })
 
-      // Logout
       .addCase(logoutUser.fulfilled, (state) => {
         state.isLoading = false;
         state.user = null;
@@ -134,5 +195,6 @@ const authSlice = createSlice({
   },
 });
 
-export const { setUser } = authSlice.actions;
+export const { clearErrors, setUser } = authSlice.actions;
+
 export default authSlice.reducer;

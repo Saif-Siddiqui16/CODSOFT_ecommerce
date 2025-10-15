@@ -1,17 +1,34 @@
 import User from "../models/User.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import { z } from "zod";
+
+const registerSchema = z.object({
+  username: z.string().min(3, "Username must be at least 3 characters long"),
+  email: z.string().email({ message: "Invalid email format" }),
+  password: z.string().min(6, "Password must be at least 6 characters long"),
+});
+
+const loginSchema = z.object({
+  email: z.string().email("Invalid email format"),
+  password: z.string().min(6, "Password must be at least 6 characters long"),
+});
 
 export const registerUser = async (req, res) => {
   try {
-    const { username, email, password } = req.body;
-    if (!username || !email || !password) {
-      return res.status(400).json({ message: "All fields are required" });
+    const parsed = registerSchema.safeParse(req.body);
+    if (!parsed.success) {
+      const errors = parsed.error.flatten().fieldErrors;
+      return res.status(400).json({ message: "Validation error", errors });
     }
+
+    const { username, email, password } = parsed.data;
 
     const existingUser = await User.findOne({ email });
     if (existingUser) {
-      return res.status(409).json({ message: "Email already in use" });
+      return res
+        .status(409)
+        .json({ message: "Email already in use", success: false });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -21,9 +38,12 @@ export const registerUser = async (req, res) => {
       email,
       password: hashedPassword,
     });
+
     await user.save();
 
-    return res.status(201).json({ message: "User registered successfully" });
+    return res
+      .status(201)
+      .json({ message: "User registered successfully", success: true });
   } catch (error) {
     console.error("Registration Error:", error);
     return res
@@ -31,15 +51,17 @@ export const registerUser = async (req, res) => {
       .json({ message: "Server error during registration" });
   }
 };
+
 export const loginUser = async (req, res) => {
   try {
-    const { email, password } = req.body;
-
-    if (!email || !password) {
-      return res
-        .status(400)
-        .json({ message: "Email and password are required" });
+    const parsed = loginSchema.safeParse(req.body);
+    if (!parsed.success) {
+      const errors = parsed.error.flatten().fieldErrors;
+      return res.status(400).json({ message: "Validation error", errors });
     }
+
+    const { email, password } = parsed.data;
+
     const existingUser = await User.findOne({ email });
     if (!existingUser) {
       return res.status(401).json({ message: "Invalid credentials" });
@@ -62,14 +84,14 @@ export const loginUser = async (req, res) => {
           role: existingUser.role,
         },
       },
-      process.env.CLIENT_SECRET_KEY,
+      process.env.JWT_SECRET,
       { expiresIn: "1d" }
     );
 
     res.cookie("token", token, {
       httpOnly: true,
-      secure: false,
-      sameSite: "Strict",
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
       maxAge: 24 * 60 * 60 * 1000,
     });
 
@@ -93,8 +115,8 @@ export const logoutUser = async (req, res) => {
   try {
     res.clearCookie("token", {
       httpOnly: true,
-      secure: false,
-      sameSite: "Strict",
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
     });
     return res.status(200).json({ message: "Logged out successfully" });
   } catch (error) {

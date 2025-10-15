@@ -15,7 +15,7 @@ export interface ProductFormData {
 
 interface ProductFormProps {
   initialData?: ProductFormData;
-  onSubmit: (data: FormData) => void; // now FormData
+  onSubmit: (data: FormData) => void;
 }
 
 const ProductForm: React.FC<ProductFormProps> = ({ initialData, onSubmit }) => {
@@ -59,7 +59,6 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialData, onSubmit }) => {
       return;
     }
 
-    // Create FormData for multipart/form-data
     const formData = new FormData();
     formData.append("name", form.name);
     formData.append("description", form.description);
