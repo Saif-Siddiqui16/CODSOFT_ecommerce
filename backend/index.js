@@ -15,13 +15,12 @@ import cors from "cors";
 
 dotenv.config();
 const app = express();
-const PORT = process.env.PORT || 8000;
 
 app.use(express.json());
 app.use(cookieParser());
 app.use(
   cors({
-    origin: process.env.FRONTEND_URL || "http://localhost:5173",
+    origin: process.env.FRONTEND_URL,
     credentials: true,
   })
 );
@@ -35,7 +34,7 @@ app.use("/api/admin/orders", adminOrderRouter);
 app.use("/api/user/payment", paymentRouter);
 app.use("/api/coupons", couponRouter);
 
-app.listen(PORT, async () => {
+app.listen(process.env.PORT, async () => {
   await db();
   console.log("server is running");
 });
