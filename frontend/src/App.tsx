@@ -88,7 +88,14 @@ const App: React.FC = () => {
               </ProtectedRoute>
             }
           />
-          <Route path="/checkout/success" element={<CheckoutSuccess />} />
+          <Route
+            path="/checkout/success"
+            element={
+              <ProtectedRoute>
+                <CheckoutSuccess />
+              </ProtectedRoute>
+            }
+          />
           <Route
             path="/checkout/cancel"
             element={
