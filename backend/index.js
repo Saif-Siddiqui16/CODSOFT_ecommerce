@@ -12,10 +12,17 @@ import adminOrderRouter from "./routes/admin-order-routes.js";
 import paymentRouter from "./routes/payment-routes.js";
 import couponRouter from "./routes/coupon-routes.js";
 import cors from "cors";
+import path from "path";
+import { fileURLToPath } from "url";
 
 dotenv.config();
 const app = express();
 
+// __dirname for ES modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Middleware
 app.use(express.json());
 app.use(cookieParser());
 app.use(
@@ -24,6 +31,8 @@ app.use(
     credentials: true,
   })
 );
+
+// API Routes
 app.use("/api/auth", authRouter);
 app.use("/api/admin/product", adminProductsRouter);
 app.use("/api/shop/products", shopProductsRouter);
@@ -34,7 +43,17 @@ app.use("/api/admin/orders", adminOrderRouter);
 app.use("/api/user/payment", paymentRouter);
 app.use("/api/coupons", couponRouter);
 
-app.listen(process.env.PORT, async () => {
+// Serve frontend build
+app.use(express.static(path.join(__dirname, "../frontend/dist")));
+
+// Catch-all route for React Router (must be AFTER API routes)
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "../frontend/dist/index.html"));
+});
+
+// Start server
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, async () => {
   await db();
-  console.log("server is running");
+  console.log(`Server is running on port ${PORT}`);
 });
