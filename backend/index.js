@@ -1,26 +1,23 @@
-import express from "express";
-import dotenv from "dotenv";
-import { db } from "./utils/db.js";
-import authRouter from "./routes/auth-routes.js";
 import cookieParser from "cookie-parser";
-import adminProductsRouter from "./routes/admin-product-routes.js";
-import shopProductsRouter from "./routes/product-routes.js";
-import shopCartRouter from "./routes/cart-routes.js";
-import shopAddressRouter from "./routes/address-routes.js";
-import shopOrderRouter from "./routes/order-routes.js";
-import adminOrderRouter from "./routes/admin-order-routes.js";
-import paymentRouter from "./routes/payment-routes.js";
-import couponRouter from "./routes/coupon-routes.js";
 import cors from "cors";
+import dotenv from "dotenv";
+import express from "express";
 import path from "path";
-import { fileURLToPath } from "url";
+import shopAddressRouter from "./routes/address-routes.js";
+import adminOrderRouter from "./routes/admin-order-routes.js";
+import adminProductsRouter from "./routes/admin-product-routes.js";
+import authRouter from "./routes/auth-routes.js";
+import shopCartRouter from "./routes/cart-routes.js";
+import couponRouter from "./routes/coupon-routes.js";
+import shopOrderRouter from "./routes/order-routes.js";
+import paymentRouter from "./routes/payment-routes.js";
+import shopProductsRouter from "./routes/product-routes.js";
+import { db } from "./utils/db.js";
 
 dotenv.config();
 const app = express();
 
-// __dirname for ES Modules
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const _dirname = path.resolve();
 
 // Middleware
 app.use(express.json());
@@ -43,14 +40,10 @@ app.use("/api/admin/orders", adminOrderRouter);
 app.use("/api/user/payment", paymentRouter);
 app.use("/api/coupons", couponRouter);
 
-// Serve frontend build
-app.use(express.static(path.join(__dirname, "../frontend/dist")));
-
-// Catch-all route for React Router (must be AFTER API routes)
-app.get("/*", (req, res) => {
-  res.sendFile(path.join(__dirname, "../frontend/dist/index.html"));
+app.use(express.static(path.join(_dirname, "/frontend/dist")));
+app.use((_, res) => {
+  res.sendFile(path.resolve(_dirname, "frontend", "dist", "index.html"));
 });
-
 // Start server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, async () => {

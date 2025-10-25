@@ -3,6 +3,9 @@ import Order from "../models/Order.js";
 import Payment from "../models/Payment.js";
 import Address from "../models/Address.js";
 import Cart from "../models/Cart.js";
+import dotenv from "dotenv";
+
+dotenv.config();
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 export const getPaymentStatus = async (req, res) => {
   try {
