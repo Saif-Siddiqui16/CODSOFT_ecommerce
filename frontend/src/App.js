@@ -1,0 +1,22 @@
+import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import Header from "./components/common/Header";
+import ProtectedRoute from "./components/common/ProtectedRoute";
+import Login from "./pages/auth/Login";
+import Register from "./pages/auth/Register";
+import ShoppingHome from "./pages/shopping-view/ShoppingHome";
+import Cart from "./pages/shopping-view/Cart";
+import Profile from "./pages/shopping-view/Profile";
+import EditAddressPage from "./pages/shopping-view/EditAddressPage";
+import Checkout from "./pages/shopping-view/Checkout";
+import CheckoutSuccess from "./pages/shopping-view/CheckoutSuccess";
+import AdminHomePage from "./pages/admin/AdminHomePage";
+import CreateProductPage from "./pages/admin/CreateProductPage";
+import EditProductPage from "./pages/admin/EditProductPage";
+import OrderDetailsPage from "./pages/shopping-view/OrderDetailsPage";
+import Orders from "./pages/shopping-view/Orders";
+import CouponPage from "./pages/admin/CouponPage";
+const App = () => {
+    return (_jsx("div", { className: "min-h-screen bg-gray-50", children: _jsxs(Router, { children: [_jsx(Header, {}), _jsxs(Routes, { children: [_jsx(Route, { path: "/login", element: _jsx(Login, {}) }), _jsx(Route, { path: "/register", element: _jsx(Register, {}) }), _jsx(Route, { path: "/", element: _jsx(ProtectedRoute, { children: _jsx(ShoppingHome, {}) }) }), _jsx(Route, { path: "/order/:orderId", element: _jsx(ProtectedRoute, { children: _jsx(OrderDetailsPage, {}) }) }), _jsx(Route, { path: "/orders", element: _jsx(ProtectedRoute, { children: _jsx(Orders, {}) }) }), _jsx(Route, { path: "/cart", element: _jsx(ProtectedRoute, { children: _jsx(Cart, {}) }) }), _jsx(Route, { path: "/profile", element: _jsx(ProtectedRoute, { children: _jsx(Profile, {}) }) }), _jsx(Route, { path: "/address/:addressId", element: _jsx(ProtectedRoute, { children: _jsx(EditAddressPage, {}) }) }), _jsx(Route, { path: "/checkout", element: _jsx(ProtectedRoute, { children: _jsx(Checkout, {}) }) }), _jsx(Route, { path: "/checkout/success", element: _jsx(ProtectedRoute, { children: _jsx(CheckoutSuccess, {}) }) }), _jsx(Route, { path: "/checkout/cancel", element: _jsx(ProtectedRoute, { children: _jsx(Checkout, {}) }) }), _jsx(Route, { path: "/admin", element: _jsx(ProtectedRoute, { children: _jsx(AdminHomePage, {}) }) }), _jsx(Route, { path: "/coupons", element: _jsx(ProtectedRoute, { children: _jsx(CouponPage, {}) }) }), _jsx(Route, { path: "/admin/products/add", element: _jsx(ProtectedRoute, { children: _jsx(CreateProductPage, {}) }) }), _jsx(Route, { path: "/admin/products/edit/:id", element: _jsx(ProtectedRoute, { children: _jsx(EditProductPage, {}) }) })] })] }) }));
+};
+export default App;
